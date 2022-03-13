@@ -12,8 +12,8 @@ class utilities():
     def generateNode():
 
         centroid = utilities.__generateCentroid(configuration.GUI_WINDOW_WIDTH, configuration.GUI_WINDOW_HEIGHT)
-        shapeRadius = utilities.generateShapeRadius(configuration.MIN_SHAPE_RADIUS, configuration.MAX_SHAPE_RADIUS)
-        broadcastRange = utilities.generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
+        shapeRadius = utilities.__generateShapeRadius(configuration.MIN_SHAPE_RADIUS, configuration.MAX_SHAPE_RADIUS)
+        broadcastRange = utilities.__generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
 
         return node(centroid, shapeRadius, broadcastRange)
 
@@ -26,11 +26,11 @@ class utilities():
         return centroid(x, y)
 
     @staticmethod
-    def generateBroadcastRange(minRadius, maxRadius):
+    def __generateBroadcastRange(minRadius, maxRadius):
         return utilities.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
-    def generateShapeRadius(minRadius, maxRadius):
+    def __generateShapeRadius(minRadius, maxRadius):
         return utilities.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
