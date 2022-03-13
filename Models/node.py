@@ -1,6 +1,4 @@
-from Models.centroid import centroid
-
-from Services.utilities import utilities
+import Services.utilities as utilities
 
 class node():
 
@@ -17,7 +15,7 @@ class node():
 
         centroidPoints = '{},{}'.format(self.centroid.x, self.centroid.y)
 
-        descriptionText = 'Centroid: {} Shape Radius: {} BroadcastRange{} .'.format(centroidPoints, self.shapeRadius, self.broadcastRange)
+        descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints, self.shapeRadius, self.broadcastRange)
         return descriptionText
 
     def changePosition(self):

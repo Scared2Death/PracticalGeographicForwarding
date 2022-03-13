@@ -2,9 +2,10 @@ from tkinter import *
 
 from Configurations import configuration
 
-from Services import utilities
+import Services.utilities as utilities
 
-def renderGUIWindow():
+
+def __renderGUIWindow():
     guiWindow = Tk(className="Simulation")
 
     guiWindowScale = '{}{}{}'.format(configuration.GUI_WINDOW_WIDTH, "x", configuration.GUI_WINDOW_HEIGHT)
@@ -17,5 +18,11 @@ def renderGUIWindow():
 
     guiWindow.mainloop()
 
+def __initializeNodes():
+    for i in range(utilities.utilities.generateRandomInt(10, 25)):
+        node = utilities.utilities.generateNode()
+        nodeDescription = node.getDescription()
+        print(nodeDescription)
 
-renderGUIWindow()
+__initializeNodes()
+__renderGUIWindow()

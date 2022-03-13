@@ -9,14 +9,16 @@ from Configurations import configuration
 class utilities():
 
     @staticmethod
-    def generateNode(maxCentroidX, maxCentroidY, shapeRadius, broadcastRange):
-        centroid = utilities.generateCentroid(maxCentroidX, maxCentroidY)
+    def generateNode():
+
+        centroid = utilities.__generateCentroid(configuration.GUI_WINDOW_WIDTH, configuration.GUI_WINDOW_HEIGHT)
+        shapeRadius = utilities.generateShapeRadius(configuration.MIN_SHAPE_RADIUS, configuration.MAX_SHAPE_RADIUS)
+        broadcastRange = utilities.generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
 
         return node(centroid, shapeRadius, broadcastRange)
 
     @staticmethod
     def __generateCentroid(maxCentroidX, maxCentroidY):
-        seed(1)
 
         x = randint(0, maxCentroidX)
         y = randint(0, maxCentroidY)
@@ -25,20 +27,18 @@ class utilities():
 
     @staticmethod
     def generateBroadcastRange(minRadius, maxRadius):
-        return utilities.generateRadius(minRadius, maxRadius)
+        return utilities.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
     def generateShapeRadius(minRadius, maxRadius):
-        return utilities.generateRadius(minRadius, maxRadius)
+        return utilities.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
     def __generateRadius(minRadius, maxRadius):
-        seed(1)
         return randint(minRadius, maxRadius)
 
     @staticmethod
     def changeCentroidPosition(centroid):
-        seed(1)
 
         # nodes can step off the canvas
 
@@ -47,3 +47,7 @@ class utilities():
 
         centroid.x += centroidXMovement
         centroid.y += centroidYMovement
+
+    @staticmethod
+    def generateRandomInt(minValue, maxValue):
+        return randint(minValue, maxValue)
