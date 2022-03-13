@@ -4,7 +4,6 @@ from Configurations import configuration
 
 import Services.utilities as utilities
 
-
 def __renderGUIWindow():
     guiWindow = Tk(className="Simulation")
 
