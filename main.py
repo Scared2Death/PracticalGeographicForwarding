@@ -2,6 +2,8 @@ from tkinter import *
 
 from Configurations import configuration
 
+from Services import utilities
+
 def renderGUIWindow():
     guiWindow = Tk(className="Simulation")
 
