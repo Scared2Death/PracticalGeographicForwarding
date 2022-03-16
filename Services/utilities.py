@@ -11,7 +11,10 @@ class utilities():
     @staticmethod
     def generateNode():
 
-        centroid = utilities.__generateCentroid(configuration.GUI_WINDOW_WIDTH, configuration.GUI_WINDOW_HEIGHT)
+        centroid = utilities.__generateCentroid(
+            configuration.GUI_WINDOW_WIDTH,
+            configuration.GUI_WINDOW_HEIGHT
+        )
         shapeRadius = utilities.__generateShapeRadius(configuration.MIN_SHAPE_RADIUS, configuration.MAX_SHAPE_RADIUS)
         broadcastRange = utilities.__generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
 
@@ -20,8 +23,8 @@ class utilities():
     @staticmethod
     def __generateCentroid(maxCentroidX, maxCentroidY):
 
-        x = randint(0, maxCentroidX)
-        y = randint(0, maxCentroidY)
+        x = randint(100, maxCentroidX - 200)
+        y = randint(100, maxCentroidY - 200)
 
         return centroid(x, y)
 

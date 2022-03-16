@@ -1,27 +1,25 @@
-from tkinter import *
-
 from Configurations import configuration
 
 import Services.utilities as utilities
+from Services.gui import gui
 
-def __renderGUIWindow():
-    guiWindow = Tk(className="Simulation")
+def initNodes():
+    for _ in range(10):
+        yield utilities.utilities.generateNode()
 
-    guiWindowScale = '{}{}{}'.format(configuration.GUI_WINDOW_WIDTH, "x", configuration.GUI_WINDOW_HEIGHT)
-    guiWindow.geometry(guiWindowScale)
+def start(ui):
+    ui.renderNodes(
+        initNodes()
+    )
 
-    myCanvas = Canvas(guiWindow)
-    myCanvas.pack()
+def main(x = None, y = None, event = None):
+    start(ui)
+    ui.loop()
 
-    myCanvas.create_oval(10, 20, 50, 80)
+ui = gui(
+    configuration.GUI_WINDOW_WIDTH,
+    configuration.GUI_WINDOW_HEIGHT,
+    main
+)
 
-    guiWindow.mainloop()
-
-def __initializeNodes():
-    for i in range(utilities.utilities.generateRandomInt(10, 25)):
-        node = utilities.utilities.generateNode()
-        nodeDescription = node.getDescription()
-        print(nodeDescription)
-
-__initializeNodes()
-__renderGUIWindow()
+main()
