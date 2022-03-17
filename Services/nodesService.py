@@ -7,8 +7,9 @@ class nodesService():
     __nodesAreInitialized = False
     __nodes = []
 
-    @staticmethod
-    def __initializeNodes():
+    def __initializeNodes(self):
+
+        self.__nodes.clear()
 
         someNodeGenerationFailed = False
         for _ in range(configuration.NUMBER_OF_NODES_TO_GENERATE + 1):
@@ -20,7 +21,7 @@ class nodesService():
                 justCreatedNode = utilitiesService.generateNode()
                 isMinimumDistanceProvided = True
 
-                for existentNode in nodesService.__nodes:
+                for existentNode in self.__nodes:
                     distance = utilitiesService.getDistance(justCreatedNode, existentNode)
 
                     if distance < configuration.MINIMUM_NODE_GENERATION_DISTANCE:
@@ -32,7 +33,7 @@ class nodesService():
                     break
 
             if couldGenerateNode:
-                nodesService.__nodes.append(justCreatedNode)
+                self.__nodes.append(justCreatedNode)
             else:
                 someNodeGenerationFailed = True
                 break
@@ -40,16 +41,18 @@ class nodesService():
         if someNodeGenerationFailed:
             return False
         else:
-            nodesService.__nodesAreInitialized = True
+            self.__nodesAreInitialized = True
             return True
 
-    @staticmethod
-    def getNodes():
-        if nodesService.__nodesAreInitialized is False:
+    def getNodes(self):
+        if self.__nodesAreInitialized is False:
 
-            couldInitializeNodes = nodesService.__initializeNodes()
+            couldInitializeNodes = self.__initializeNodes()
 
             if couldInitializeNodes:
-                return nodesService.__nodes
+                return self.__nodes
             else:
                 raise Exception("Node initialization couldn't be carried out .")
+
+        else:
+            return self.__nodes

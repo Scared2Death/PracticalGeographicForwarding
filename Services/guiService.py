@@ -25,13 +25,13 @@ class guiService():
         # A
         i = 65
         for node in nodes:
-            self.circle(
+            self.drawCircle(
                 node.centroid.x,
                 node.centroid.y,
                 node.shapeRadius,
                 f = "#fff"
             )
-            self.circle(
+            self.drawCircle(
                 node.centroid.x,
                 node.centroid.y,
                 node.broadcastRange,
@@ -47,7 +47,7 @@ class guiService():
             )
             i = i + 1
 
-    def circle(self, x, y, r, c = "#000", f = ""):
+    def drawCircle(self, x, y, r, c ="#000", f =""):
         return self.canvas.create_oval(
             x - r,
             y - r,

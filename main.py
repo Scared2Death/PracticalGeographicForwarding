@@ -4,7 +4,7 @@ from Services.guiService import guiService
 from Services.nodesService import nodesService
 
 def __start():
-    __ui.renderNodes(nodesService.getNodes())
+    __ui.renderNodes(nodesService().getNodes())
 
 def main(x = None, y = None, event = None):
     __start()
