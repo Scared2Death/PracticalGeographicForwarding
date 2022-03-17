@@ -1,25 +1,22 @@
 from Configurations import configuration
 
-import Services.utilities as utilities
-from Services.gui import gui
+from Services.guiService import guiService
+from Services.nodesService import nodesService
 
-def initNodes():
-    for _ in range(10):
-        yield utilities.utilities.generateNode()
-
-def start(ui):
-    ui.renderNodes(
-        initNodes()
-    )
+def __start():
+    __ui.renderNodes(nodesService.getNodes())
 
 def main(x = None, y = None, event = None):
-    start(ui)
-    ui.loop()
+    __start()
+    __ui.loop()
 
-ui = gui(
+__ui = guiService(
     configuration.GUI_WINDOW_WIDTH,
     configuration.GUI_WINDOW_HEIGHT,
     main
 )
 
-main()
+try:
+    main()
+except Exception as ex:
+    print(ex)

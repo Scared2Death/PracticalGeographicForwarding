@@ -1,3 +1,5 @@
+import math
+
 from random import seed
 from random import randint
 
@@ -6,35 +8,40 @@ from Models.node import node
 
 from Configurations import configuration
 
-class utilities():
+class utilitiesService():
 
     @staticmethod
     def generateNode():
 
-        centroid = utilities.__generateCentroid(
+        centroid = utilitiesService.__generateCentroid(
             configuration.GUI_WINDOW_WIDTH,
             configuration.GUI_WINDOW_HEIGHT
         )
-        shapeRadius = utilities.__generateShapeRadius(configuration.MIN_SHAPE_RADIUS, configuration.MAX_SHAPE_RADIUS)
-        broadcastRange = utilities.__generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
+        shapeRadius = utilitiesService.__generateShapeRadius(configuration.SHAPE_RADIUS, configuration.SHAPE_RADIUS)
+        broadcastRange = utilitiesService.__generateBroadcastRange(configuration.MIN_BROADCAST_RANGE, configuration.MAX_BROADCAST_RANGE)
 
         return node(centroid, shapeRadius, broadcastRange)
 
     @staticmethod
     def __generateCentroid(maxCentroidX, maxCentroidY):
 
-        x = randint(100, maxCentroidX - 200)
-        y = randint(100, maxCentroidY - 200)
+        cropValue = configuration.GUI_CANVAS_CROP_PERCENTAGE / 100
+
+        lowerBoundaryCoefficient = (0 + cropValue)
+        upperBoundaryCoefficient = (1 - cropValue)
+
+        x = randint(maxCentroidX * lowerBoundaryCoefficient, maxCentroidX * upperBoundaryCoefficient)
+        y = randint(maxCentroidY * lowerBoundaryCoefficient, maxCentroidY * upperBoundaryCoefficient)
 
         return centroid(x, y)
 
     @staticmethod
     def __generateBroadcastRange(minRadius, maxRadius):
-        return utilities.__generateRadius(minRadius, maxRadius)
+        return utilitiesService.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
     def __generateShapeRadius(minRadius, maxRadius):
-        return utilities.__generateRadius(minRadius, maxRadius)
+        return utilitiesService.__generateRadius(minRadius, maxRadius)
 
     @staticmethod
     def __generateRadius(minRadius, maxRadius):
@@ -54,3 +61,8 @@ class utilities():
     @staticmethod
     def generateRandomInt(minValue, maxValue):
         return randint(minValue, maxValue)
+
+    @staticmethod
+    def getDistance(nodeOne: node, nodeTwo: node):
+
+        return math.sqrt(pow(nodeOne.centroid.x - nodeTwo.centroid.x, 2) + pow(nodeOne.centroid.y - nodeTwo.centroid.y, 2))
