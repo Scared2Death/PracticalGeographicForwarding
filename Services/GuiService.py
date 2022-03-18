@@ -30,32 +30,32 @@ class GuiService:
                 node.getCentroid().x,
                 node.getCentroid().y,
                 node.getShapeRadius(),
-                f = "#fff"
+                f = Configuration.INNER_NODE_FILL_COLOR,
             )
             self.drawCircle(
                 node.getCentroid().x,
                 node.getCentroid().y,
                 node.getBroadcastRange(),
-                c = "#ccc"
+                c = Configuration.OUTER_NODE_FILL_COLOR
             )
 
-            fillColor = Configuration.WRONGLY_INITIALIZED_NODE_COLOR
+            textColor = Configuration.WRONGLY_INITIALIZED_NODE_COLOR
 
             if node.getType() == NodeType.LOCATION_AWARE:
-                fillColor = Configuration.LOCATION_AWARE_NODE_COLOR
+                textColor = Configuration.LOCATION_AWARE_NODE_COLOR
             else:
-                fillColor = Configuration.LOCATION_IGNORANT_NODE_COLOR
+                textColor = Configuration.LOCATION_IGNORANT_NODE_COLOR
 
             self.canvas.create_text(
                 node.getCentroid().x,
                 node.getCentroid().y,
-                fill = fillColor,
+                fill = textColor,
                 font = Configuration.FONT,
                 text = chr(i)
             )
             i = i + 1
 
-    def drawCircle(self, x, y, r, c ="#000", f =""):
+    def drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR):
         return self.canvas.create_oval(
             x - r,
             y - r,
