@@ -1,19 +1,27 @@
-from Configurations import configuration
+from Configurations import Configuration
 
-from Services.guiService import guiService
-from Services.nodesService import nodesService
+from Services.GuiService import GuiService
+from Services.NodesService import NodesService
 
-def __start():
-    __ui.renderNodes(nodesService().getNodes())
+__nodeService = None
 
 def main(x = None, y = None, event = None):
-    __start()
+    # initialization
+    # reinitialization
+    main.__nodeService = NodesService()
+
+    __ui.renderNodes(main.__nodeService.getNodes())
     __ui.loop()
 
-__ui = guiService(
-    configuration.GUI_WINDOW_WIDTH,
-    configuration.GUI_WINDOW_HEIGHT,
-    main
+def __move(x = None, y = None, event = None):
+    main.__nodeService.incurNodeMovements()
+    __ui.renderNodes(main.__nodeService.getNodes())
+
+__ui = GuiService(
+    Configuration.GUI_WINDOW_WIDTH,
+    Configuration.GUI_WINDOW_HEIGHT,
+    main,
+    __move
 )
 
 try:
