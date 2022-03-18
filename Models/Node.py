@@ -16,6 +16,9 @@ class Node:
     def getCentroid(self):
         return self.__centroid
 
+    def setCentroid(self, centroid):
+        self.__centroid = centroid
+
     def getShapeRadius(self):
         return self.__shapeRadius
 
@@ -32,5 +35,5 @@ class Node:
         descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints, self.__shapeRadius, self.__broadcastRange)
         return descriptionText
 
-    def changePosition(self):
-        utilitiesService.UtilitiesService.changeCentroidPosition(self)
+    def changePosition(self, otherNodes):
+        utilitiesService.UtilitiesService.changeCentroidPosition(self, otherNodes)

@@ -34,15 +34,35 @@ class UtilitiesService:
         return Centroid(x, y)
 
     @staticmethod
-    def changeCentroidPosition(node: Node):
+    def changeCentroidPosition(node: Node, otherNodes: list[Node]):
 
-        # nodes can step off the canvas
+        for x in range(Configuration.NUMBER_OF_MAXIMUM_MOVEMENT_TRIAL_PER_NODE):
 
-        centroidXMovement = randint(Configuration.MIN_CENTROID_MOVEMENT, Configuration.MAX_CENTROID_MOVEMENT)
-        centroidYMovement = randint(Configuration.MIN_CENTROID_MOVEMENT, Configuration.MAX_CENTROID_MOVEMENT)
+            couldMakeAMovement = True
 
-        node.getCentroid().x += centroidXMovement
-        node.getCentroid().y += centroidYMovement
+            # nodes can step off the canvas
+
+            centroidXMovement = randint(Configuration.MIN_CENTROID_MOVEMENT, Configuration.MAX_CENTROID_MOVEMENT)
+            centroidYMovement = randint(Configuration.MIN_CENTROID_MOVEMENT, Configuration.MAX_CENTROID_MOVEMENT)
+
+            wouldBeCreatedCentroidX = node.getCentroid().x + centroidXMovement
+            wouldBeCreatedCentroidY = node.getCentroid().y + centroidYMovement
+            wouldBeCreatedCentroid = Centroid(wouldBeCreatedCentroidX, wouldBeCreatedCentroidY)
+
+            for otherNode in otherNodes:
+                if (node == otherNode):
+                    continue
+
+                distance = UtilitiesService.getCentroidDistance(wouldBeCreatedCentroid, otherNode.getCentroid())
+
+                if distance < Configuration.MINIMUM_NODES_DISTANCE:
+                    couldMakeAMovement = False
+                    break
+
+            if (couldMakeAMovement):
+                node.getCentroid().x = wouldBeCreatedCentroidX
+                node.getCentroid().y = wouldBeCreatedCentroidY
+                break
 
     @staticmethod
     def __generateShapeRadius(minRadius, maxRadius):
@@ -70,5 +90,9 @@ class UtilitiesService:
         return randint(minValue, maxValue)
 
     @staticmethod
-    def getDistance(nodeOne: Node, nodeTwo: Node):
+    def getNodeDistance(nodeOne: Node, nodeTwo: Node):
         return math.sqrt(pow(nodeOne.getCentroid().x - nodeTwo.getCentroid().x, 2) + pow(nodeOne.getCentroid().y - nodeTwo.getCentroid().y, 2))
+
+    @staticmethod
+    def getCentroidDistance(centroidOne: Centroid, centroidTwo: Centroid):
+        return math.sqrt(pow(centroidOne.x - centroidTwo.x, 2) + pow(centroidOne.y - centroidTwo.y, 2))

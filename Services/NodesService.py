@@ -1,11 +1,12 @@
 from Configurations import Configuration
 
 from Services.UtilitiesService import UtilitiesService
+from Models import Node
 
 class NodesService:
 
     __nodesAreInitialized = False
-    __nodes = []
+    __nodes = [Node]
 
     def __initializeNodes(self):
 
@@ -22,9 +23,9 @@ class NodesService:
                 isMinimumDistanceProvided = True
 
                 for existentNode in self.__nodes:
-                    distance = UtilitiesService.getDistance(justCreatedNode, existentNode)
+                    distance = UtilitiesService.getNodeDistance(justCreatedNode, existentNode)
 
-                    if distance < Configuration.MINIMUM_NODE_GENERATION_DISTANCE:
+                    if distance < Configuration.MINIMUM_NODES_DISTANCE:
                         isMinimumDistanceProvided = False
                         break
 
@@ -59,4 +60,4 @@ class NodesService:
 
     def incurNodeMovements(self):
         for node in self.__nodes:
-            node.changePosition()
+            node.changePosition(self.__nodes)
