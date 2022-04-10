@@ -1,27 +1,47 @@
 from Configurations import Configuration
+from Models.Packet import Packet
 
 from Services.GuiService import GuiService
 from Services.NodesService import NodesService
+from Services.RoutingService import RoutingService
 
 __nodeService = None
 
-def main(x = None, y = None, event = None):
+
+def main(x=None, y=None, event=None):
     # initialization
     # reinitialization
     main.__nodeService = NodesService()
-
-    __ui.renderNodes(main.__nodeService.getNodes())
+    RoutingService.initRoutingTables(main.__nodeService)
+    RoutingService.updateRoutingTables(main.__nodeService)
+    main.__nodeService.printRoutingTables()
+    __ui.renderNodes(main.__nodeService.getNodes().values())
     __ui.loop()
 
-def __move(x = None, y = None, event = None):
+
+def __move(x=None, y=None, event=None):
     main.__nodeService.incurNodeMovements()
-    __ui.renderNodes(main.__nodeService.getNodes())
+    RoutingService.updateRoutingTables(main.__nodeService)
+    __ui.renderNodes(main.__nodeService.getNodes().values())
+
+
+# for testing purposes
+def __basicRouting(event):
+    src = input('source: ')
+    srcLocation = main.__nodeService.getNodes()[int(src)].getCentroid()
+    dest = input('dest: ')
+    destLocation = main.__nodeService.getNodes()[int(dest)].getCentroid()
+    msg = input('msg: ')
+    packet = Packet(int(src), srcLocation, int(dest), destLocation, msg)
+    RoutingService.forwardBasic(main.__nodeService, packet)
+
 
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
     Configuration.GUI_WINDOW_HEIGHT,
     main,
-    __move
+    __move,
+    __basicRouting
 )
 
 try:

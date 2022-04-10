@@ -1,12 +1,13 @@
 from Configurations import Configuration
+import pprint
 
 from Services.UtilitiesService import UtilitiesService
 from Models import Node
 
-class NodesService:
 
+class NodesService:
     __nodesAreInitialized = False
-    __nodes = [Node]
+    __nodes = {int: Node}
 
     def __initializeNodes(self):
 
@@ -22,7 +23,7 @@ class NodesService:
                 justCreatedNode = UtilitiesService.generateNode()
                 isMinimumDistanceProvided = True
 
-                for existentNode in self.__nodes:
+                for existentNode in self.__nodes.values():
                     distance = UtilitiesService.getNodeDistance(justCreatedNode, existentNode)
 
                     if distance < Configuration.MINIMUM_NODES_DISTANCE:
@@ -34,7 +35,7 @@ class NodesService:
                     break
 
             if couldGenerateNode:
-                self.__nodes.append(justCreatedNode)
+                self.__nodes[justCreatedNode.getId()] = justCreatedNode
             else:
                 someNodeGenerationFailed = True
                 break
@@ -59,5 +60,19 @@ class NodesService:
             return self.__nodes
 
     def incurNodeMovements(self):
-        for node in self.__nodes:
-            node.changePosition(self.__nodes)
+        for node in self.__nodes.values():
+            node.changePosition(self.__nodes.values())
+
+    def getNeighbors(self, node):
+        neighbors = []
+        for otherNodeId, otherNode in self.__nodes.items():
+            if otherNodeId != node.getId():
+                distance = UtilitiesService.getNodeDistance(otherNode, node)
+                if distance < node.getBroadcastRange() + otherNode.getBroadcastRange():
+                    neighbors.append(otherNode)
+        return neighbors
+
+    def printRoutingTables(self):
+        for nodeId, node in self.__nodes.items():
+            print('Node {nodeId} (id: {num}): '.format(nodeId=chr(nodeId), num=nodeId))
+            pprint.pprint(node.getRoutingTable())

@@ -8,6 +8,7 @@ from Models.Node import Node
 from Configurations import Configuration
 from Constants import NodeType
 
+
 class UtilitiesService:
 
     @staticmethod
@@ -15,10 +16,14 @@ class UtilitiesService:
 
         centroid = UtilitiesService.__generateCentroid(Configuration.GUI_WINDOW_WIDTH, Configuration.GUI_WINDOW_HEIGHT)
         shapeRadius = UtilitiesService.__generateShapeRadius(Configuration.SHAPE_RADIUS, Configuration.SHAPE_RADIUS)
-        broadcastRange = UtilitiesService.__generateBroadcastRange(Configuration.MIN_BROADCAST_RANGE, Configuration.MAX_BROADCAST_RANGE)
+        broadcastRange = UtilitiesService.__generateBroadcastRange(Configuration.MIN_BROADCAST_RANGE,
+                                                                   Configuration.MAX_BROADCAST_RANGE)
         nodeType = UtilitiesService.__getNodeType()
+        nodeId = Configuration.nodeId
+        # probably not a great idea
+        Configuration.nodeId += 1
 
-        return Node(centroid, shapeRadius, broadcastRange, nodeType)
+        return Node(centroid, shapeRadius, broadcastRange, nodeType, nodeId)
 
     @staticmethod
     def __generateCentroid(maxCentroidX, maxCentroidY):
@@ -91,7 +96,8 @@ class UtilitiesService:
 
     @staticmethod
     def getNodeDistance(nodeOne: Node, nodeTwo: Node):
-        return math.sqrt(pow(nodeOne.getCentroid().x - nodeTwo.getCentroid().x, 2) + pow(nodeOne.getCentroid().y - nodeTwo.getCentroid().y, 2))
+        return math.sqrt(pow(nodeOne.getCentroid().x - nodeTwo.getCentroid().x, 2) + pow(
+            nodeOne.getCentroid().y - nodeTwo.getCentroid().y, 2))
 
     @staticmethod
     def getCentroidDistance(centroidOne: Centroid, centroidTwo: Centroid):
