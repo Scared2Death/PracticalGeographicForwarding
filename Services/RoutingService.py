@@ -5,11 +5,22 @@ class RoutingService:
         for node in nodeService.getNodes().values():
             neighbors = nodeService.getNeighbors(node)
             for neighbor in neighbors:
-                node.saveNewEntry(neighbor.getId(), 1, neighbor, 0, neighbor.getCentroid())
+                node.saveNewEntry(neighbor.getId(), 1, neighbor, 0, neighbor.getLocation())
 
     @staticmethod
     def updateRoutingTables(nodeService):
-        done = False
+        updated = False
+        for node in nodeService.getNodes().values():
+            neighbors = nodeService.getNeighbors(node)
+            # Increment sequence number during first dump only to avoid infinite loop
+            node.incrementSeqNum()
+            update = {'origin': node,
+                      'table': node.getRoutingTable(),
+                      'seqNum': node.getSeqNum(),
+                      'location': node.getCentroid()}
+            for neighbor in neighbors:
+                updated = updated or neighbor.processRoutingTableUpdate(update)
+        done = not updated
         while not done:
             updated = False
             for node in nodeService.getNodes().values():

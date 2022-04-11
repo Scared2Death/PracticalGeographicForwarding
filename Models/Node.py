@@ -1,5 +1,7 @@
 import Constants.NodeType
 import Services.UtilitiesService as utilitiesService
+from Configurations import Configuration
+
 
 class Node:
 
@@ -17,7 +19,7 @@ class Node:
         self.__broadcastRange = broadcastRange
         self.__nodeType = nodeType
         self.__nodeId = nodeId
-        self.__routingTable = {self.__nodeId: {'cost': 0, 'nextHop': None, 'seqNum': 0, 'location': centroid}}
+        self.__routingTable = {self.__nodeId: {'cost': 0, 'nextHop': None, 'seqNum': 0, 'location': None}}
         if nodeType == Constants.NodeType.LOCATION_AWARE:
             self.__routingTable[self.__nodeId]['location'] = centroid
 
@@ -49,6 +51,9 @@ class Node:
         descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints, self.__shapeRadius, self.__broadcastRange)
         return descriptionText
 
+    def getLocation(self):
+        return self.__centroid if self.__nodeType == Constants.NodeType.LOCATION_AWARE else None
+
     def changePosition(self, otherNodes):
         utilitiesService.UtilitiesService.changeCentroidPosition(self, otherNodes)
 
@@ -67,13 +72,16 @@ class Node:
             for dest, data in routingTable.items():
                 if dest in self.__routingTable:
                     # Update this routing table
-                    if cost + data['cost'] < self.__routingTable[dest]['cost']:
+                    if data['seqNum'] > self.__routingTable[dest]['seqNum']:
+                        self.updateEntry(dest, cost + data['cost'], sender, data['seqNum'], data['location'])
+                        updated = True
+                    elif data['seqNum'] == self.__routingTable[dest]['seqNum'] and cost + data['cost'] < self.__routingTable[dest]['cost']:
                         self.updateEntry(dest, cost + data['cost'], sender, data['seqNum'], data['location'])
                         updated = True
                     else:
                         updated = updated or False
-                else:
-                    # Save new entry
+                elif cost + data['cost'] <= Configuration.MAX_HOPS:
+                    # Save new entry if it is within the max hop count
                     self.saveNewEntry(dest, cost + data['cost'], sender, data['seqNum'], data['location'])
                     updated = True
         return updated
@@ -88,8 +96,10 @@ class Node:
         self.__routingTable[key]['location'] = location
 
     def getSeqNum(self):
-        self.__seqNum += 1
         return self.__seqNum
+
+    def incrementSeqNum(self):
+        self.__seqNum += 1
 
     def getBasicNextHop(self, packet):
         dest = packet.destId
@@ -99,16 +109,18 @@ class Node:
             print('Found destination in Routing Table.')
             return self.__routingTable[dest]['nextHop']
         else:
-            print('Trying to find closer node...')
+            print('Trying to find node in the routing table that is physically closer to the destination...')
             location = packet.destLocation
             distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getCentroid())
             nextHop = None
             for nodeId, data in self.__routingTable.items():
-                newDistance = utilitiesService.UtilitiesService.getCentroidDistance(location, data['location'])
-                if newDistance < distance:
-                    distance = newDistance
-                    nextHop = data['nextHop']
-                    print('id {} is closer'.format(nodeId))
-                else:
-                    print('id {} is not closer'.format(nodeId))
+                # Only location aware nodes can be used
+                if data['location'] is not None:
+                    newDistance = utilitiesService.UtilitiesService.getCentroidDistance(location, data['location'])
+                    if newDistance < distance:
+                        distance = newDistance
+                        nextHop = data['nextHop']
+                        print('id {} is closer'.format(nodeId))
+                    else:
+                        print('id {} is not closer'.format(nodeId))
             return nextHop
