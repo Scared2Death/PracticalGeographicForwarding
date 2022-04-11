@@ -1,8 +1,8 @@
 import Constants.NodeType
 import Services.UtilitiesService as utilitiesService
 
-
 class Node:
+
     __centroid = None
     __shapeRadius = None
     __broadcastRange = None
@@ -46,9 +46,7 @@ class Node:
 
         centroidPoints = '{},{}'.format(self.__centroid.x, self.__centroid.y)
 
-        descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints,
-                                                                                       self.__shapeRadius,
-                                                                                       self.__broadcastRange)
+        descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints, self.__shapeRadius, self.__broadcastRange)
         return descriptionText
 
     def changePosition(self, otherNodes):

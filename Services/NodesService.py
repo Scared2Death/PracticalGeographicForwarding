@@ -4,8 +4,8 @@ import pprint
 from Services.UtilitiesService import UtilitiesService
 from Models import Node
 
-
 class NodesService:
+
     __nodesAreInitialized = False
     __nodes = {int: Node}
 

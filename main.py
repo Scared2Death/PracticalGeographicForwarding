@@ -7,8 +7,7 @@ from Services.RoutingService import RoutingService
 
 __nodeService = None
 
-
-def main(x=None, y=None, event=None):
+def main(x = None, y = None, event = None):
     # initialization
     # reinitialization
     main.__nodeService = NodesService()
@@ -18,8 +17,7 @@ def main(x=None, y=None, event=None):
     __ui.renderNodes(main.__nodeService.getNodes().values())
     __ui.loop()
 
-
-def __move(x=None, y=None, event=None):
+def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
     RoutingService.updateRoutingTables(main.__nodeService)
     __ui.renderNodes(main.__nodeService.getNodes().values())
