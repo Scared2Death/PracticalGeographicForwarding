@@ -45,4 +45,4 @@ RATIO_OF_LOCATION_AWARE_NODES = 70
 nodeId = 65
 
 # Basic Routing
-MAX_HOPS = 4
+MAX_HOPS = 2

@@ -2,7 +2,6 @@ import Constants.NodeType
 import Services.UtilitiesService as utilitiesService
 from Configurations import Configuration
 
-
 class Node:
 
     __centroid = None
@@ -44,6 +43,15 @@ class Node:
     def getRoutingTable(self):
         return self.__routingTable
 
+    def getSeqNum(self):
+            return self.__seqNum
+
+    def incrementSeqNum(self):
+        self.__seqNum += 1
+
+    def getLocation(self):
+        return self.__centroid if self.__nodeType == Constants.NodeType.LOCATION_AWARE else None
+
     def getDescription(self):
 
         centroidPoints = '{},{}'.format(self.__centroid.x, self.__centroid.y)
@@ -51,20 +59,24 @@ class Node:
         descriptionText = 'Centroid: {} Shape Radius: {} Broadcast Range: {} .'.format(centroidPoints, self.__shapeRadius, self.__broadcastRange)
         return descriptionText
 
-    def getLocation(self):
-        return self.__centroid if self.__nodeType == Constants.NodeType.LOCATION_AWARE else None
-
     def changePosition(self, otherNodes):
         utilitiesService.UtilitiesService.changeCentroidPosition(self, otherNodes)
 
+    def saveNewEntry(self, key, cost, nextHop, seqNum, location):
+        self.__routingTable[key] = {'cost': cost, 'nextHop': nextHop.getId(), 'seqNum': seqNum, 'location': location}
+
+    def updateEntry(self, key, cost, nextHop, seqNum, location):
+        self.__routingTable[key]['cost'] = cost
+        self.__routingTable[key]['nextHop'] = nextHop.getId()
+        self.__routingTable[key]['seqNum'] = seqNum
+        self.__routingTable[key]['location'] = location
+
     # Returns true if routing table is updated, false otherwise
-    def processRoutingTableUpdate(self, message):
+    def processBasicRoutingTableUpdate(self, message):
         updated = False
         sender = message['origin']
         routingTable = message['table']
         seqNum = message['seqNum']
-        # If the sender is not in the routing table, it means that sender is out of range for self,
-        # so self cannot send anything via the sender
         if sender.getId() in self.__routingTable:
             cost = self.__routingTable[sender.getId()]['cost']
             self.__routingTable[sender.getId()]['seqNum'] = seqNum
@@ -84,22 +96,10 @@ class Node:
                     # Save new entry if it is within the max hop count
                     self.saveNewEntry(dest, cost + data['cost'], sender, data['seqNum'], data['location'])
                     updated = True
+        else:
+            self.saveNewEntry(sender.getId(), 1, sender, seqNum, sender.getLocation())
+            updated = True
         return updated
-
-    def saveNewEntry(self, key, cost, nextHop, seqNum, location):
-        self.__routingTable[key] = {'cost': cost, 'nextHop': nextHop.getId(), 'seqNum': seqNum, 'location': location}
-
-    def updateEntry(self, key, cost, nextHop, seqNum, location):
-        self.__routingTable[key]['cost'] = cost
-        self.__routingTable[key]['nextHop'] = nextHop.getId()
-        self.__routingTable[key]['seqNum'] = seqNum
-        self.__routingTable[key]['location'] = location
-
-    def getSeqNum(self):
-        return self.__seqNum
-
-    def incrementSeqNum(self):
-        self.__seqNum += 1
 
     def getBasicNextHop(self, packet):
         dest = packet.destId
@@ -108,10 +108,10 @@ class Node:
         elif dest in self.__routingTable:
             print('Found destination in Routing Table.')
             return self.__routingTable[dest]['nextHop']
-        else:
+        elif self.getLocation() is not None:
             print('Trying to find node in the routing table that is physically closer to the destination...')
             location = packet.destLocation
-            distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getCentroid())
+            distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getLocation())
             nextHop = None
             for nodeId, data in self.__routingTable.items():
                 # Only location aware nodes can be used
@@ -124,3 +124,5 @@ class Node:
                     else:
                         print('id {} is not closer'.format(nodeId))
             return nextHop
+        else:
+            return None

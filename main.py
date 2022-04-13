@@ -12,22 +12,24 @@ def main(x = None, y = None, event = None):
     # reinitialization
     main.__nodeService = NodesService()
     RoutingService.initRoutingTables(main.__nodeService)
-    RoutingService.updateRoutingTables(main.__nodeService)
+    RoutingService.updateBasicRoutingTables(main.__nodeService)
     main.__nodeService.printRoutingTables()
     __ui.renderNodes(main.__nodeService.getNodes().values())
     __ui.loop()
 
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
-    RoutingService.updateRoutingTables(main.__nodeService)
+    RoutingService.updateBasicRoutingTables(main.__nodeService)
     __ui.renderNodes(main.__nodeService.getNodes().values())
 
 
 # for testing purposes
 def __basicRouting(event):
     src = input('source: ')
-    srcLocation = main.__nodeService.getNodes()[int(src)].getCentroid()
+    # Source may or may not know its own location
+    srcLocation = main.__nodeService.getNodes()[int(src)].getLocation()
     dest = input('dest: ')
+    # Destination location is always known, since we are using locations as addresses
     destLocation = main.__nodeService.getNodes()[int(dest)].getCentroid()
     msg = input('msg: ')
     packet = Packet(int(src), srcLocation, int(dest), destLocation, msg)

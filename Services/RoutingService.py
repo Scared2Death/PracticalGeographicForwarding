@@ -8,7 +8,7 @@ class RoutingService:
                 node.saveNewEntry(neighbor.getId(), 1, neighbor, 0, neighbor.getLocation())
 
     @staticmethod
-    def updateRoutingTables(nodeService):
+    def updateBasicRoutingTables(nodeService):
         updated = False
         for node in nodeService.getNodes().values():
             neighbors = nodeService.getNeighbors(node)
@@ -17,9 +17,9 @@ class RoutingService:
             update = {'origin': node,
                       'table': node.getRoutingTable(),
                       'seqNum': node.getSeqNum(),
-                      'location': node.getCentroid()}
+                      'location': node.getLocation()}
             for neighbor in neighbors:
-                updated = updated or neighbor.processRoutingTableUpdate(update)
+                updated = updated or neighbor.processBasicRoutingTableUpdate(update)
         done = not updated
         while not done:
             updated = False
@@ -28,9 +28,9 @@ class RoutingService:
                 update = {'origin': node,
                           'table': node.getRoutingTable(),
                           'seqNum': node.getSeqNum(),
-                          'location': node.getCentroid()}
+                          'location': node.getLocation()}
                 for neighbor in neighbors:
-                    updated = updated or neighbor.processRoutingTableUpdate(update)
+                    updated = updated or neighbor.processBasicRoutingTableUpdate(update)
             done = not updated
 
     # Basic Routing
@@ -43,7 +43,6 @@ class RoutingService:
         while nextHop is not None and destId != nextHop:
             print('Next hop: {}'.format(nextHop))
             nextHop = nodeService.getNodes()[nextHop].getBasicNextHop(packet)
-
         if destId != nextHop:
             print('Packet dropped:(')
         else:
