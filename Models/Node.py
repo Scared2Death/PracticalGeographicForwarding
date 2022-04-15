@@ -40,6 +40,12 @@ class Node:
     def getType(self):
         return self.__nodeType
 
+    def isLocationAware(self):
+        return self.__nodeType == Constants.NodeType.LOCATION_AWARE
+
+    def isLocationIgnorant(self):
+        return self.__nodeType == Constants.NodeType.LOCATION_IGNORANT
+
     def getId(self):
         return self.__nodeId
 
@@ -54,7 +60,7 @@ class Node:
         self.__routingTable[self.__nodeType][self.__nodeId]['seqNum'] = self.__seqNum
 
     def getLocation(self):
-        return self.__centroid if self.__nodeType == Constants.NodeType.LOCATION_AWARE else None
+        return self.__centroid if self.__nodeType == Constants.NodeType.LOCATION_AWARE else self.__proxy
 
     def getRadius(self):
         return self.__radius
@@ -80,24 +86,23 @@ class Node:
         self.__routingTable[nodeType][key]['radius'] = radius
 
     # Returns true if routing table is updated, false otherwise
-    def processBasicRoutingTableUpdate(self, message):
+    def processRoutingTableUpdate(self, message, withLocProxy):
         updated = False
         senderId = message['origin']
         routingTable = message['table']
-
         for nodeType, table in routingTable.items():
             for dest, data in table.items():
                 newCost = data['cost'] + 1
                 newSeqNum = data['seqNum']
                 newLocation = data['location']
-                newRadius = data['radius']
-
+                newRadius = data['radius'] if data['radius'] == 0 else data['radius'] - 1
                 inRoutingTable = dest in self.__routingTable[nodeType]
+                mustSave = newCost <= Configuration.MAX_HOPS or (withLocProxy and (nodeType == Constants.NodeType.LOCATION_AWARE or data['radius'] > 0))
                 notSelf = dest != self.__nodeId
-
                 if inRoutingTable and notSelf:
                     currentSeqNum = self.__routingTable[nodeType][dest]['seqNum']
                     currentCost = self.__routingTable[nodeType][dest]['cost']
+                    currentRadius = self.__routingTable[nodeType][dest]['radius']
 
                     if newSeqNum > currentSeqNum:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
@@ -105,12 +110,16 @@ class Node:
                     elif newSeqNum == currentSeqNum and newCost < currentCost:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
                         updated = True
+                    # elif withLocProxy and data['radius'] > 0:
+                    #     self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
+                    #     updated = True
                     else:
-                        updated = updated or False
-                elif newCost <= Configuration.MAX_HOPS and notSelf:
-                    # Save new entry if it is within the max hop count
+                        updated = False
+                elif mustSave and notSelf:
                     self.saveNewEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
                     updated = True
+                if withLocProxy and self.isLocationIgnorant():
+                    updated = self.setProxy(nodeType, newLocation, newCost, dest)
         return updated
 
     def getBasicNextHop(self, packet):
@@ -123,7 +132,7 @@ class Node:
         elif dest in self.__routingTable[Constants.NodeType.LOCATION_IGNORANT]:
             print('Found destination in Routing Table.')
             return self.__routingTable[Constants.NodeType.LOCATION_IGNORANT][dest]['nextHop']
-        elif self.getLocation() is not None:
+        elif self.isLocationAware():
             print('Trying to find node in the routing table that is physically closer to the destination...')
             location = packet.destLocation
             distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getLocation())
@@ -141,40 +150,12 @@ class Node:
         else:
             return None
 
-    def processLocProxyRoutingTableUpdate(self, message):
-        updated = False
-        senderId = message['origin']
-        routingTable = message['table']
-
-        for nodeType, table in routingTable.items():
-            for dest, data in table.items():
-                newCost = data['cost'] + 1
-                newSeqNum = data['seqNum']
-                newLocation = data['location']
-                newRadius = data['radius'] if data['radius'] == 0 else data['radius'] - 1
-                inRoutingTable = dest in self.__routingTable[nodeType]
-                # Save new entry if it is within the max hop count / save all location aware nodes / save entries with non zero radius
-                mustSave = newCost <= Configuration.MAX_HOPS or nodeType == Constants.NodeType.LOCATION_AWARE or newRadius != 0
-                notSelf = dest != self.__nodeId
-
-                if inRoutingTable and notSelf:
-                    currentSeqNum = self.__routingTable[nodeType][dest]['seqNum']
-                    currentCost = self.__routingTable[nodeType][dest]['cost']
-                    if newSeqNum > currentSeqNum:
-                        self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                        updated = True
-                    elif newSeqNum == currentSeqNum and newCost < currentCost:
-                        self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                        updated = True
-                    else:
-                        updated = updated or False
-                elif inRoutingTable and mustSave and notSelf:
-                    self.saveNewEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                    updated = True
-                self.setProxy(nodeType, newLocation, newCost)
-            return updated
-
-    def setProxy(self, nodeType, proxyLocation, radius):
-        if  nodeType == Constants.NodeType.LOCATION_AWARE and self.__nodeType == Constants.NodeType.LOCATION_IGNORANT and (self.__proxy is None or self.__radius > radius):
+    def setProxy(self, nodeType, proxyLocation, radius, proxyId):
+        if nodeType == Constants.NodeType.LOCATION_AWARE and (self.__proxy is None or self.__radius > radius):
             self.__proxy = proxyLocation
             self.__radius = radius
+            self.__routingTable[self.__nodeType][self.__nodeId]['radius'] = radius
+            print('Found Location Proxy {} for {} - radius {}'.format(proxyId, self.__nodeId, radius))
+            return True
+        else:
+            return False

@@ -1,3 +1,4 @@
+import traceback
 from Configurations import Configuration
 from Models.Packet import Packet
 
@@ -12,14 +13,14 @@ def main(x = None, y = None, event = None):
     # reinitialization
     main.__nodeService = NodesService()
     RoutingService.initRoutingTables(main.__nodeService)
-    RoutingService.updateBasicRoutingTables(main.__nodeService)
+    RoutingService.updateRoutingTables(main.__nodeService, False)
     main.__nodeService.printRoutingTables()
     __ui.renderNodes(main.__nodeService.getNodes().values())
     __ui.loop()
 
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
-    RoutingService.updateBasicRoutingTables(main.__nodeService)
+    RoutingService.updateRoutingTables(main.__nodeService, False)
     __ui.renderNodes(main.__nodeService.getNodes().values())
 
 
@@ -47,4 +48,4 @@ __ui = GuiService(
 try:
     main()
 except Exception as ex:
-    print(ex)
+    print(traceback.format_exc())

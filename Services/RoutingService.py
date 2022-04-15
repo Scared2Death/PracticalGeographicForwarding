@@ -10,7 +10,7 @@ class RoutingService:
                 node.saveNewEntry(neighbor.getType(), neighborId, 1, neighborId, 0, neighbor.getLocation(), radius)
 
     @staticmethod
-    def updateBasicRoutingTables(nodeService):
+    def updateRoutingTables(nodeService, withLocProxy):
         updated = False
         for node in nodeService.getNodes().values():
             neighbors = nodeService.getNeighbors(node)
@@ -21,7 +21,7 @@ class RoutingService:
                       'seqNum': node.getSeqNum(),
                       'table': node.getRoutingTable()}
             for neighbor in neighbors:
-                updated = updated or neighbor.processBasicRoutingTableUpdate(update)
+                updated = updated or neighbor.processRoutingTableUpdate(update, withLocProxy)
         done = not updated
         while not done:
             updated = False
@@ -32,7 +32,7 @@ class RoutingService:
                           'seqNum': node.getSeqNum(),
                           'location': node.getLocation()}
                 for neighbor in neighbors:
-                    updated = updated or neighbor.processBasicRoutingTableUpdate(update)
+                    updated = updated or neighbor.processRoutingTableUpdate(update, withLocProxy)
             done = not updated
 
     # Basic Routing
