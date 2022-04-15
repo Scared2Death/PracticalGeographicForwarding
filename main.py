@@ -12,16 +12,16 @@ def main(x = None, y = None, event = None):
     # initialization
     # reinitialization
     main.__nodeService = NodesService()
-    RoutingService.initRoutingTables(main.__nodeService)
-    RoutingService.updateRoutingTables(main.__nodeService, False)
+    main.__nodeService.setWithLocProxy(True)
+    main.__nodeService.getNodes()
     main.__nodeService.printRoutingTables()
     __ui.renderNodes(main.__nodeService.getNodes().values())
     __ui.loop()
 
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
-    RoutingService.updateRoutingTables(main.__nodeService, False)
     __ui.renderNodes(main.__nodeService.getNodes().values())
+    main.__nodeService.printRoutingTables()
 
 
 # for testing purposes

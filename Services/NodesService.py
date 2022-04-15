@@ -1,6 +1,7 @@
 from Configurations import Configuration
 import pprint
 
+from Services.RoutingService import RoutingService
 from Services.UtilitiesService import UtilitiesService
 from Models import Node
 
@@ -8,6 +9,7 @@ class NodesService:
 
     __nodesAreInitialized = False
     __nodes = {int: Node}
+    __withLocProxy = False
 
     def __initializeNodes(self):
 
@@ -36,6 +38,7 @@ class NodesService:
 
             if couldGenerateNode:
                 self.__nodes[justCreatedNode.getId()] = justCreatedNode
+                RoutingService.advertiseRoutingTable(justCreatedNode, self, self.__withLocProxy)
             else:
                 someNodeGenerationFailed = True
                 break
@@ -59,9 +62,16 @@ class NodesService:
         else:
             return self.__nodes
 
+    def isWithLocProxy(self):
+        return self.__withLocProxy
+
+    def setWithLocProxy(self, withLocProxy):
+        self.__withLocProxy = withLocProxy
+
     def incurNodeMovements(self):
         for node in self.__nodes.values():
             node.changePosition(self.__nodes.values())
+            RoutingService.advertiseRoutingTable(node, self, self.__withLocProxy)
 
     def getNeighbors(self, node):
         neighbors = []

@@ -1,39 +1,24 @@
 class RoutingService:
 
     @staticmethod
-    def initRoutingTables(nodeService):
-        for node in nodeService.getNodes().values():
+    def advertiseRoutingTable(node, nodeService, withLocProxy):
+        # print('-- generated node {}'.format(node.getId()))
+        queue = [node]
+        while queue:
+            node = queue.pop(0)
+            # print('------ node popped {}'.format(node.getId()))
             neighbors = nodeService.getNeighbors(node)
-            for neighbor in neighbors:
-                neighborId = neighbor.getId()
-                radius = neighbor.getRadius() if neighbor.getRadius() == 0 else neighbor.getRadius() - 1
-                node.saveNewEntry(neighbor.getType(), neighborId, 1, neighborId, 0, neighbor.getLocation(), radius)
-
-    @staticmethod
-    def updateRoutingTables(nodeService, withLocProxy):
-        updated = False
-        for node in nodeService.getNodes().values():
-            neighbors = nodeService.getNeighbors(node)
-            # Increment sequence number during first dump only to avoid infinite loop
             node.incrementSeqNum()
             update = {'origin': node.getId(),
                       'location': node.getLocation(),
                       'seqNum': node.getSeqNum(),
                       'table': node.getRoutingTable()}
             for neighbor in neighbors:
-                updated = updated or neighbor.processRoutingTableUpdate(update, withLocProxy)
-        done = not updated
-        while not done:
-            updated = False
-            for node in nodeService.getNodes().values():
-                neighbors = nodeService.getNeighbors(node)
-                update = {'origin': node.getId(),
-                          'table': node.getRoutingTable(),
-                          'seqNum': node.getSeqNum(),
-                          'location': node.getLocation()}
-                for neighbor in neighbors:
-                    updated = updated or neighbor.processRoutingTableUpdate(update, withLocProxy)
-            done = not updated
+                updated = neighbor.processRoutingTableUpdate(update, withLocProxy)
+                # print('---------- neighbor {} updated {}'.format(neighbor.getId(), updated))
+                if updated:
+                    queue.append(neighbor)
+            # print('------ updated queue {}'.format(queue))
 
     # Basic Routing
     @staticmethod

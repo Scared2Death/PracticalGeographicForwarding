@@ -56,6 +56,7 @@ class Node:
         return self.__seqNum
 
     def incrementSeqNum(self):
+        # Sequence numbers defined by the originating Mobile Hosts are defined to be even numbers, and sequence numbers generated to indicate cm metrics are odd numbers.
         self.__seqNum += 1
         self.__routingTable[self.__nodeType][self.__nodeId]['seqNum'] = self.__seqNum
 
@@ -106,20 +107,23 @@ class Node:
 
                     if newSeqNum > currentSeqNum:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                        updated = True
+                        # If a new sequence number for a route is received, but the metric stays the same, that would be unlikely to be considered as a significant change.
+                        updated = newCost < currentCost
                     elif newSeqNum == currentSeqNum and newCost < currentCost:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
                         updated = True
-                    # elif withLocProxy and data['radius'] > 0:
-                    #     self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                    #     updated = True
+                    # Not sure what the condition should be here
+                    elif withLocProxy and currentRadius + 1 < data['radius']:
+                        self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
+                        updated = True
                     else:
                         updated = False
                 elif mustSave and notSelf:
                     self.saveNewEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
                     updated = True
+
                 if withLocProxy and self.isLocationIgnorant():
-                    updated = self.setProxy(nodeType, newLocation, newCost, dest)
+                    updated = updated or self.setProxy(nodeType, newLocation, newCost, dest)
         return updated
 
     def getBasicNextHop(self, packet):
