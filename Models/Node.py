@@ -1,5 +1,7 @@
 import Constants.NodeType
 import Services.UtilitiesService as utilitiesService
+
+from Services.LogService import LogService
 from Configurations import Configuration
 
 class Node:
@@ -131,13 +133,13 @@ class Node:
         if self.__routingTable is None:
             return None
         elif dest in self.__routingTable[Constants.NodeType.LOCATION_AWARE]:
-            print('Found destination in Routing Table.')
+            LogService.log('Found destination in Routing Table.')
             return self.__routingTable[Constants.NodeType.LOCATION_AWARE][dest]['nextHop']
         elif dest in self.__routingTable[Constants.NodeType.LOCATION_IGNORANT]:
-            print('Found destination in Routing Table.')
+            LogService.log('Found destination in Routing Table.')
             return self.__routingTable[Constants.NodeType.LOCATION_IGNORANT][dest]['nextHop']
         elif self.isLocationAware():
-            print('Trying to find node in the routing table that is physically closer to the destination...')
+            LogService.log('Trying to find node in the routing table that is physically closer to the destination...')
             location = packet.destLocation
             distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getLocation())
             nextHop = None
@@ -147,9 +149,9 @@ class Node:
                 if newDistance < distance:
                     distance = newDistance
                     nextHop = data['nextHop']
-                    print('id {} is closer'.format(nodeId))
+                    LogService.log('id {} is closer'.format(nodeId))
                 else:
-                    print('id {} is not closer'.format(nodeId))
+                    LogService.log('id {} is not closer'.format(nodeId))
             return nextHop
         else:
             return None
@@ -159,7 +161,7 @@ class Node:
             self.__proxy = proxyLocation
             self.__radius = radius
             self.__routingTable[self.__nodeType][self.__nodeId]['radius'] = radius
-            print('Found Location Proxy {} for {} - radius {}'.format(proxyId, self.__nodeId, radius))
+            LogService.log('Found Location Proxy {} for {} - radius {}'.format(proxyId, self.__nodeId, radius))
             return True
         else:
             return False

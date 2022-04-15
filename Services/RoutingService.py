@@ -1,12 +1,14 @@
+from Services.LogService import LogService
+
 class RoutingService:
 
     @staticmethod
     def advertiseRoutingTable(node, nodeService, withLocProxy):
-        # print('-- generated node {}'.format(node.getId()))
+        # LogService.log('-- generated node {}'.format(node.getId()))
         queue = [node]
         while queue:
             node = queue.pop(0)
-            # print('------ node popped {}'.format(node.getId()))
+            # LogService.log('------ node popped {}'.format(node.getId()))
             neighbors = nodeService.getNeighbors(node)
             node.incrementSeqNum()
             update = {'origin': node.getId(),
@@ -15,10 +17,10 @@ class RoutingService:
                       'table': node.getRoutingTable()}
             for neighbor in neighbors:
                 updated = neighbor.processRoutingTableUpdate(update, withLocProxy)
-                # print('---------- neighbor {} updated {}'.format(neighbor.getId(), updated))
+                # LogService.log('---------- neighbor {} updated {}'.format(neighbor.getId(), updated))
                 if updated:
                     queue.append(neighbor)
-            # print('------ updated queue {}'.format(queue))
+            # LogService.log('------ updated queue {}'.format(queue))
 
     # Basic Routing
     @staticmethod
@@ -28,9 +30,9 @@ class RoutingService:
         srcNode = nodeService.getNodes()[srcId]
         nextHop = srcNode.getBasicNextHop(packet)
         while nextHop is not None and destId != nextHop:
-            print('Next hop: {}'.format(nextHop))
+            LogService.log('Next hop: {}'.format(nextHop))
             nextHop = nodeService.getNodes()[nextHop].getBasicNextHop(packet)
         if destId != nextHop:
-            print('Packet dropped:(')
+            LogService.log('Packet dropped :(')
         else:
-            print('Packet delivered:)')
+            LogService.log('Packet delivered :)')

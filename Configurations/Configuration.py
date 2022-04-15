@@ -42,7 +42,10 @@ BASIC_ROUTING_KEY = "b"
 RATIO_OF_LOCATION_AWARE_NODES = 70
 
 # Node id codes
-nodeId = 65
+NODE_ID = 65
 
 # Basic Routing
 MAX_HOPS = 2
+
+LOG_TO_CONSOLE = True
+LOG_TO_FILE = False

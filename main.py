@@ -1,10 +1,11 @@
-import traceback
 from Configurations import Configuration
 from Models.Packet import Packet
-
 from Services.GuiService import GuiService
 from Services.NodesService import NodesService
 from Services.RoutingService import RoutingService
+from Services.LogService import LogService
+
+import traceback
 
 __nodeService = None
 
@@ -48,4 +49,4 @@ __ui = GuiService(
 try:
     main()
 except Exception as ex:
-    print(traceback.format_exc())
+    LogService.log(traceback.format_exc())

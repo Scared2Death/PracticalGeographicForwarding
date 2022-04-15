@@ -1,5 +1,3 @@
-import math
-
 from random import randint
 
 from Models.Centroid import Centroid
@@ -7,6 +5,8 @@ from Models.Node import Node
 
 from Configurations import Configuration
 from Constants import NodeType
+
+import math
 
 class UtilitiesService:
 
@@ -17,9 +17,9 @@ class UtilitiesService:
         shapeRadius = UtilitiesService.__generateShapeRadius(Configuration.SHAPE_RADIUS, Configuration.SHAPE_RADIUS)
         broadcastRange = UtilitiesService.__generateBroadcastRange(Configuration.MIN_BROADCAST_RANGE, Configuration.MAX_BROADCAST_RANGE)
         nodeType = UtilitiesService.__getNodeType()
-        nodeId = Configuration.nodeId
+        nodeId = Configuration.NODE_ID
         # probably not a great idea
-        Configuration.nodeId += 1
+        Configuration.NODE_ID += 1
 
         return Node(centroid, shapeRadius, broadcastRange, nodeType, nodeId)
 

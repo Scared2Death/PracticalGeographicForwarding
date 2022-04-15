@@ -1,9 +1,12 @@
 from Configurations import Configuration
-import pprint
 
 from Services.RoutingService import RoutingService
 from Services.UtilitiesService import UtilitiesService
+from Services.LogService import LogService
+
 from Models import Node
+
+import pprint
 
 class NodesService:
 
@@ -84,5 +87,5 @@ class NodesService:
 
     def printRoutingTables(self):
         for nodeId, node in self.__nodes.items():
-            print('Node {nodeId} (id: {num}): '.format(nodeId=chr(nodeId), num=nodeId))
+            LogService.log('Node {nodeId} (id: {num}): '.format(nodeId=chr(nodeId), num=nodeId))
             pprint.pprint(node.getRoutingTable())
