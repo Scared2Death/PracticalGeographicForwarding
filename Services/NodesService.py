@@ -1,6 +1,5 @@
 from Configurations import Configuration
 
-from Services.RoutingService import RoutingService
 from Services.UtilitiesService import UtilitiesService
 from Services.LogService import LogService
 
@@ -12,7 +11,7 @@ class NodesService:
 
     __nodesAreInitialized = False
     __nodes = {int: Node}
-    __withLocProxy = False
+    __withLocationProxy = False
 
     def __initializeNodes(self):
 
@@ -41,7 +40,6 @@ class NodesService:
 
             if couldGenerateNode:
                 self.__nodes[justCreatedNode.getId()] = justCreatedNode
-                RoutingService.advertiseRoutingTable(justCreatedNode, self, self.__withLocProxy)
             else:
                 someNodeGenerationFailed = True
                 break
@@ -65,16 +63,15 @@ class NodesService:
         else:
             return self.__nodes
 
-    def isWithLocProxy(self):
-        return self.__withLocProxy
+    def isWithLocationProxy(self):
+        return self.__withLocationProxy
 
-    def setWithLocProxy(self, withLocProxy):
-        self.__withLocProxy = withLocProxy
+    def setWithLocationProxy(self, withLocationProxy):
+        self.__withLocationProxy = withLocationProxy
 
     def incurNodeMovements(self):
         for node in self.__nodes.values():
             node.changePosition(self.__nodes.values())
-            RoutingService.advertiseRoutingTable(node, self, self.__withLocProxy)
 
     def getNeighbors(self, node):
         neighbors = []
@@ -86,6 +83,6 @@ class NodesService:
         return neighbors
 
     def printRoutingTables(self):
-        for nodeId, node in self.__nodes.items():
-            LogService.log('Node {nodeId} (id: {num}): '.format(nodeId=chr(nodeId), num=nodeId))
+        for nodeId, node in self.getNodes().items():
+            LogService.log('Node {} (id: {}): '.format(chr(nodeId), nodeId))
             pprint.pprint(node.getRoutingTable())

@@ -5,7 +5,7 @@ from Constants import NodeType
 
 class GuiService:
 
-    def __init__(self, width, height, start, move, basicRouting):
+    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff):
 
         self.window = Tk()
         self.window.title(Configuration.GUI_WINDOW_TITLE)
@@ -18,6 +18,9 @@ class GuiService:
         self.window.bind(Configuration.RESTART_KEY, start)
         self.window.bind(Configuration.MOVEMENT_KEY, move)
         self.window.bind(Configuration.BASIC_ROUTING_KEY, basicRouting)
+        self.window.bind(Configuration.LOCATION_PROXY_ROUTING_KEY, locationProxyRouting)
+        self.window.bind(Configuration.LOCATION_PROXY_ON_KEY, turnLocationProxyOn)
+        self.window.bind(Configuration.LOCATION_PROXY_OFF_KEY, turnLocationProxyOff)
 
     def loop(self):
         self.window.mainloop()
