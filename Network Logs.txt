@@ -1,0 +1,468 @@
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node Q (id: 81): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node W (id: 87): 
+Node Y (id: 89): 
+Node Z (id: 90): 
+Node \ (id: 92): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node R (id: 82): 
+Node S (id: 83): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node W (id: 87): 
+Node X (id: 88): 
+
+Basic Forwarding
+
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node U (id: 85): 
+Node X (id: 88): 
+Node Z (id: 90): 
+Node [ (id: 91): 
+Node ] (id: 93): 
+Node _ (id: 95): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node R (id: 82): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node Z (id: 90): 
+Node [ (id: 91): 
+Node \ (id: 92): 
+Node ` (id: 96): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node P (id: 80): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node X (id: 88): 
+Node Y (id: 89): 
+Node [ (id: 91): 
+Node ] (id: 93): 
+Node b (id: 98): 
+
+Basic Forwarding
+
+Trying to find node in the routing table that is physically closer to the destination...
+id 67 is not closer
+id 72 is not closer
+id 70 is closer
+id 80 is not closer
+Next hop: 70
+Trying to find node in the routing table that is physically closer to the destination...
+id 70 is not closer
+id 72 is not closer
+id 80 is not closer
+id 67 is not closer
+id 73 is closer
+id 86 is not closer
+id 88 is not closer
+Next hop: 69
+Found destination in Routing Table.
+Next hop: 73
+Found destination in Routing Table.
+Packet is delivered at node 68 :)
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node N (id: 78): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node R (id: 82): 
+Node S (id: 83): 
+Node U (id: 85): 
+Node W (id: 87): 
+Node X (id: 88): 
+Node Z (id: 90): 
+Node [ (id: 91): 
+Node ] (id: 93): 
+
+Basic Forwarding
+
+Packet is dropped :(
+
+Basic Forwarding
+
+Found destination in Routing Table.
+Next hop: 93
+Found destination in Routing Table.
+Packet is delivered at node 90 :)
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node X (id: 88): 
+Node Y (id: 89): 
+Node \ (id: 92): 
+Node ^ (id: 94): 
+Node _ (id: 95): 
+Node c (id: 99): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node L (id: 76): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node S (id: 83): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node X (id: 88): 
+Node Y (id: 89): 
+Node ] (id: 93): 
+
+Basic Forwarding
+
+Found destination in Routing Table.
+Next hop: 85
+Found destination in Routing Table.
+Packet is delivered at node 70 :)
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node I (id: 73): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node S (id: 83): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node X (id: 88): 
+Node Y (id: 89): 
+Node \ (id: 92): 
+Node ^ (id: 94): 
+Node _ (id: 95): 
+Node b (id: 98): 
+
+Basic Forwarding
+
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node H (id: 72): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node W (id: 87): 
+Node Y (id: 89): 
+Node Z (id: 90): 
+
+Basic Forwarding
+
+Trying to find node in the routing table that is physically closer to the destination...
+id 69 is not closer
+id 76 is closer
+id 65 is not closer
+id 70 is not closer
+id 72 is not closer
+id 75 is closer
+Next hop: 76
+Trying to find node in the routing table that is physically closer to the destination...
+id 76 is not closer
+id 65 is not closer
+id 70 is not closer
+id 72 is not closer
+id 69 is not closer
+id 75 is closer
+id 79 is closer
+Next hop: 75
+Trying to find node in the routing table that is physically closer to the destination...
+id 75 is not closer
+id 76 is not closer
+id 65 is not closer
+id 70 is not closer
+id 72 is not closer
+id 69 is not closer
+id 79 is closer
+id 68 is not closer
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node I (id: 73): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node Q (id: 81): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node X (id: 88): 
+Node Y (id: 89): 
+Node [ (id: 91): 
+Node \ (id: 92): 
+Node ] (id: 93): 
+Node ^ (id: 94): 
+
+Basic Forwarding
+
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Z (id: 90): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Z (id: 90): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Z (id: 90): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Z (id: 90): 
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node I (id: 73): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node L (id: 76): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node R (id: 82): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Z (id: 90): 
+
+Basic Forwarding
+
+Full dump update on all nodes is done
+Node A (id: 65): 
+Node B (id: 66): 
+Node C (id: 67): 
+Node D (id: 68): 
+Node E (id: 69): 
+Node F (id: 70): 
+Node G (id: 71): 
+Node H (id: 72): 
+Node J (id: 74): 
+Node K (id: 75): 
+Node M (id: 77): 
+Node N (id: 78): 
+Node O (id: 79): 
+Node P (id: 80): 
+Node Q (id: 81): 
+Node S (id: 83): 
+Node T (id: 84): 
+Node U (id: 85): 
+Node V (id: 86): 
+Node Y (id: 89): 
+Node [ (id: 91): 
+
+Basic Forwarding
+
+Trying to find node in the routing table that is physically closer to the destination...
+id 66 is not closer
+id 85 is closer
+Next hop: 85
+Trying to find node in the routing table that is physically closer to the destination...
+id 85 is not closer
+id 66 is not closer
+id 91 is closer
+Next hop: 69
+Packet is dropped :(

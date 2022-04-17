@@ -1,4 +1,5 @@
 import Services.UtilitiesService as utilitiesService
+
 from Constants import NodeType
 from Services.LogService import LogService
 from Configurations import Configuration
@@ -192,4 +193,3 @@ class Node:
                         else:
                             LogService.log('id {} is not closer'.format(nodeId))
             return nextHop
-

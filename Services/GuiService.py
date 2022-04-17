@@ -2,6 +2,7 @@ from tkinter import *
 
 from Configurations import Configuration
 from Constants import NodeType
+from Models.Packet import Packet
 
 class GuiService:
 
@@ -24,6 +25,15 @@ class GuiService:
 
     def loop(self):
         self.window.mainloop()
+
+    # INITIAL SOMETHING
+    def renderPacket(self, packet: Packet):
+        self.drawCircle(
+            packet.getCentroid().x,
+            packet.getCentroid().y,
+            Configuration.PACKET_SHAPE_RADIUS,
+            f = Configuration.PACKET_FILL_COLOR
+            )
 
     def renderNodes(self, nodes):
         self.canvas.delete("all")

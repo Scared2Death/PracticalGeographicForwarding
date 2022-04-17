@@ -1,5 +1,7 @@
 from Configurations import Configuration
+
 from Models.Packet import Packet
+
 from Services.GuiService import GuiService
 from Services.NodesService import NodesService
 from Services.RoutingService import RoutingService
@@ -29,6 +31,8 @@ def __move(x = None, y = None, event = None):
 # for testing purposes
 def __basicRouting(event):
     LogService.log('\nBasic Forwarding\n')
+
+    # RENDERING SHOULD BE REFACTORED
     main.__routingService.forwardBasic(__createPacket())
 
 # for testing purposes
@@ -68,7 +72,11 @@ def __createPacket():
     # Destination location is always known, since we are using locations as addresses
     destLocation = main.__nodeService.getNodes()[int(dest)].getCentroid()
     msg = input('Message: ')
-    return Packet(int(src), srcLocation, int(dest), destLocation, msg)
+
+    packet = Packet(int(src), srcLocation, int(dest), destLocation, msg)
+    packet.setCentroid(srcLocation)
+
+    return packet
 
 try:
     main()

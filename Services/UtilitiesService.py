@@ -7,6 +7,7 @@ from Configurations import Configuration
 from Constants import NodeType
 
 import math
+import time
 
 class UtilitiesService:
 
@@ -99,3 +100,7 @@ class UtilitiesService:
     @staticmethod
     def getCentroidDistance(centroidOne: Centroid, centroidTwo: Centroid):
         return math.sqrt(pow(centroidOne.x - centroidTwo.x, 2) + pow(centroidOne.y - centroidTwo.y, 2))
+
+    @staticmethod
+    def delayExecution():
+        time.sleep(Configuration.DELAY_INTERVAL)
