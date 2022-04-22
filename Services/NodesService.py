@@ -83,6 +83,5 @@ class NodesService:
         return neighbors
 
     def printRoutingTables(self):
-        for nodeId, node in self.getNodes().items():
-            LogService.log('Node {} (id: {}): '.format(chr(nodeId), nodeId))
-            pprint.pprint(node.getRoutingTable())
+        for node in self.getNodes().values():
+            LogService.log('{} :\n{}'.format(repr(node), pprint.pformat(node.getRoutingTable())))

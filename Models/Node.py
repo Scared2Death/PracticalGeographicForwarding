@@ -14,6 +14,7 @@ class Node:
     __routingTable = None
     __seqNum = 0
     __proxy = None
+    __proxyId = None
     __radius = 0
 
     def __init__(self, centroid, shapeRadius, broadcastRange, nodeType, nodeId):
@@ -26,6 +27,12 @@ class Node:
         self.__routingTable[nodeType][nodeId] = {'cost': 0, 'nextHop': None, 'seqNum': 0, 'location': None, 'radius': 0}
         if nodeType == NodeType.LOCATION_AWARE:
             self.__routingTable[NodeType.LOCATION_AWARE][nodeId]['location'] = centroid
+
+    def __repr__(self):
+        if self.__nodeType == NodeType.LOCATION_IGNORANT:
+            return 'Node (id = {}, type = {}, proxyLocation = {}, proxy = {}, seqNum = {})'.format(self.__nodeId, self.__nodeType, self.getLocation(), self.__proxyId, self.__seqNum)
+        else:
+            return 'Node (id = {}, type = {}, location = {}, seqNum = {})'.format(self.__nodeId, self.__nodeType, self.getLocation(), self.__seqNum)
 
     def getCentroid(self):
         return self.__centroid
@@ -111,27 +118,31 @@ class Node:
                     if newSeqNum > currentSeqNum:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
                         # If a new sequence number for a route is received, but the metric stays the same, that would be unlikely to be considered as a significant change.
-                        updated = newCost < currentCost
+                        updated = updated or newCost < currentCost or currentRadius + 1 < data['radius']
                     elif newSeqNum == currentSeqNum and newCost < currentCost:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                        updated = True
+                        updated = updated or True
                     # Not sure what the condition should be here
                     elif withLocationProxy and currentRadius + 1 < data['radius']:
                         self.updateEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                        updated = True
+                        updated = updated or True
                     else:
-                        updated = False
+                        updated = updated or False
                 elif mustSave and notSelf:
                     self.saveNewEntry(nodeType, dest, newCost, senderId, newSeqNum, newLocation, newRadius)
-                    updated = True
+                    updated = updated or True
 
-                if withLocationProxy and self.isLocationIgnorant():
-                    updated = updated or self.setProxy(nodeType, newLocation, newCost, dest)
+                if withLocationProxy and self.isLocationIgnorant() and nodeType == NodeType.LOCATION_AWARE:
+                    radius = self.__routingTable[nodeType][dest]['cost']
+                    proxyLocation = self.__routingTable[nodeType][dest]['location']
+                    proxySaved = self.setProxy(proxyLocation, radius, dest)
+                    updated = updated or proxySaved
         return updated
 
-    def setProxy(self, nodeType, proxyLocation, radius, proxyId):
-        if nodeType == NodeType.LOCATION_AWARE and (self.__proxy is None or self.__radius > radius):
+    def setProxy(self, proxyLocation, radius, proxyId):
+        if self.__proxy is None or self.__radius > radius or self.__radius == 0:
             self.__proxy = proxyLocation
+            self.__proxyId = proxyId
             self.__radius = radius
             self.__routingTable[self.__nodeType][self.__nodeId]['radius'] = radius
             LogService.log('Found Location Proxy {} for {} - radius {}'.format(proxyId, self.__nodeId, radius))

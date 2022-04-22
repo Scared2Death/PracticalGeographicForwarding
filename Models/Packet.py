@@ -17,6 +17,9 @@ class Packet:
         self.destLocation = destLocation
         self.message = message
 
+    def __repr__(self):
+        return 'Packet (srcId = {}, srcLocation = {}, destId = {}, destLocation = {}, message = {})'.format(self.srcId, self.srcLocation, self.destId, self.destLocation, self.message)
+
     def getCentroid(self):
         return self.__centroid
 
