@@ -14,36 +14,37 @@ class RoutingService:
 
     def clearRoutingTables(self):
         for node in self.__nodeService.getNodes().values():
-            routingTable = {NodeType.LOCATION_AWARE: {}, NodeType.LOCATION_IGNORANT: {}}
-            routingTable[node.getType()][node.getId()] = {'cost': 0, 'nextHop': None, 'seqNum': 0, 'location': None, 'radius': 0}
-            if node.getType() == NodeType.LOCATION_AWARE:
-                routingTable[node.getType()][node.getId()]['location'] = node.getCentroid()
-            node.setRoutingTable(routingTable)
+            node.resetRoutingTable()
         LogService.log('Routing Tables are cleared')
 
     def updateRoutingTables(self):
         for node in self.__nodeService.getNodes().values():
             self.advertiseRoutingTable(node)
+        for node in self.__nodeService.getNodes().values():
+            node.removeLostRoutes()
         LogService.log('Full dump update on all nodes is done')
 
-    def advertiseRoutingTable(self, node):
-        # LogService.log('-- generated node {}'.format(node.getId()))
-        queue = [node]
+    def advertiseRoutingTable(self, advertisedNode):
+        # LogService.log('Advertising table of {}'.format(advertisedNode.getId()))
+        queue = [advertisedNode]
         while queue:
             node = queue.pop(0)
-            # LogService.log('------ node popped {}'.format(node.getId()))
+            # LogService.log('\t\tNode popped from queue: {}'.format(node.getId()))
             neighbors = self.__nodeService.getNeighbors(node)
+            node.updateNeighbors(neighbors)
             node.incrementSeqNum()
             update = {'origin': node.getId(),
                       'location': node.getLocation(),
                       'seqNum': node.getSeqNum(),
                       'table': node.getRoutingTable()}
-            for neighbor in neighbors:
+            for neighbor in neighbors.values():
                 updated = neighbor.processRoutingTableUpdate(update, self.__nodeService.isWithLocationProxy())
-                # LogService.log('---------- neighbor {} updated {}'.format(neighbor.getId(), updated))
+                # LogService.log('\t\t\tNeighbor {} of {} updated: {}'.format(neighbor.getId(), node.getId(), updated))
                 if updated:
                     queue.append(neighbor)
-            # LogService.log('------ updated queue {}'.format(queue))
+            # LogService.log('\t\tUpdated queue: {}'.format(queue))
+        # LogService.log('Routing Tables after advertisement of {}'.format(advertisedNode.getId()))
+        # self.__nodeService.printRoutingTables()
 
     # Basic Routing
     def forwardBasic(self, packet):

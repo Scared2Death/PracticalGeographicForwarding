@@ -74,12 +74,12 @@ class NodesService:
             node.changePosition(self.__nodes.values())
 
     def getNeighbors(self, node):
-        neighbors = []
+        neighbors = {}
         for otherNodeId, otherNode in self.__nodes.items():
             if otherNodeId != node.getId():
                 distance = UtilitiesService.getNodeDistance(otherNode, node)
                 if distance < node.getBroadcastRange() + otherNode.getBroadcastRange():
-                    neighbors.append(otherNode)
+                    neighbors[otherNodeId] = otherNode
         return neighbors
 
     def printRoutingTables(self):
