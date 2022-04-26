@@ -96,7 +96,7 @@ def __createPacket():
 def __getHelperText():
     return "Restart: [{}] \n".format(Configuration.RESTART_KEY) + \
            "Move: [{}] \n".format(Configuration.MOVEMENT_KEY) + \
-           "Basic outing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
+           "Basic routing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
            "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
            "Turn location proxy on: [{}] \n".format(Configuration.LOCATION_PROXY_ON_KEY) + \
            "Turn location proxy off: [{}]\n".format(Configuration.LOCATION_PROXY_OFF_KEY) + \

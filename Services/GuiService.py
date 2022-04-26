@@ -48,12 +48,12 @@ class GuiService:
             isPartOfSomeNetwork = False
 
             if node.checkNetworkBelonging(nodes):
-                nodeShapeFillColor = Configuration.NODE_SHAPE_IN_NETWORK_FILL_COLOR
+                nodeShapeFillColor = Configuration.NODE_IN_NETWORK_SHAPE_FILL_COLOR
                 nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUTLINE_COLOR
                 isPartOfSomeNetwork = True
             else:
-                nodeShapeFillColor = Configuration.NODE_SHAPE_OUT_OF_NETWORK_FILL_COLOR
-                nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUT_OF_NETWORK_OUTLINE_COLOR
+                nodeShapeFillColor = Configuration.NODE_OUT_OF_NETWORK_SHAPE_FILL_COLOR
+                nodeBroadcastRangeFillColor = Configuration.NODE_OUT_OF_NETWORK_BROADCAST_RANGE_OUTLINE_COLOR
 
             # NODE SHAPE
                 self.drawCircle(
