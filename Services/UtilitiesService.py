@@ -102,5 +102,13 @@ class UtilitiesService:
         return math.sqrt(pow(centroidOne.x - centroidTwo.x, 2) + pow(centroidOne.y - centroidTwo.y, 2))
 
     @staticmethod
-    def delayExecution():
-        time.sleep(Configuration.DELAY_INTERVAL)
+    def checkNodeIntersection(nodeOne: Node, nodeTwo: Node):
+
+        centroidDistance = UtilitiesService.getCentroidDistance(nodeOne.getCentroid(), nodeTwo.getCentroid())
+        hasIntersection = centroidDistance < (nodeOne.getBroadcastRange() + nodeTwo.getBroadcastRange())
+
+        return hasIntersection
+
+    @staticmethod
+    def delayExecution(timeInterval):
+        time.sleep(timeInterval)

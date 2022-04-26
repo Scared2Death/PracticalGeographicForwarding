@@ -204,3 +204,19 @@ class Node:
                         else:
                             LogService.log('id {} is not closer'.format(nodeId))
             return nextHop
+
+    def checkNetworkBelonging(self, otherNodes):
+
+        hasAnyIntersection = False
+
+        for otherNode in otherNodes:
+
+            if self == otherNode:
+                continue
+            else:
+                hasAnyIntersection = utilitiesService.UtilitiesService.checkNodeIntersection(self, otherNode)
+
+                if hasAnyIntersection:
+                    break;
+
+        return hasAnyIntersection

@@ -2,13 +2,15 @@ from tkinter import *
 
 from Configurations import Configuration
 from Constants import NodeType
+
 from Models.Packet import Packet
 
 class GuiService:
 
-    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff):
+    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff,     toggleAutomaticSimulation):
 
         self.window = Tk()
+
         self.window.title(Configuration.GUI_WINDOW_TITLE)
         self.window.geometry('{}{}{}'.format(width, "x", height))
         self.window.resizable(False, False)
@@ -22,42 +24,64 @@ class GuiService:
         self.window.bind(Configuration.LOCATION_PROXY_ROUTING_KEY, locationProxyRouting)
         self.window.bind(Configuration.LOCATION_PROXY_ON_KEY, turnLocationProxyOn)
         self.window.bind(Configuration.LOCATION_PROXY_OFF_KEY, turnLocationProxyOff)
+        self.window.bind(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY, toggleAutomaticSimulation)
 
     def loop(self):
         self.window.mainloop()
 
-    # INITIAL SOMETHING
-    def renderPacket(self, packet: Packet):
-        self.drawCircle(
-            packet.getCentroid().x,
-            packet.getCentroid().y,
-            Configuration.PACKET_SHAPE_RADIUS,
-            f = Configuration.PACKET_FILL_COLOR
-            )
+    def render(self, nodes, helperText: str):
+        # packet: Packet
 
-    def renderNodes(self, nodes):
+        # # INITIAL SOMETHING
+        # def renderPacket(self, packet: Packet):
+        #     self.drawCircle(
+        #         packet.getCentroid().x,
+        #         packet.getCentroid().y,
+        #         Configuration.PACKET_SHAPE_RADIUS,
+        #         f=Configuration.PACKET_FILL_COLOR
+        #     )
+
         self.canvas.delete("all")
+
         for node in nodes:
-            self.drawCircle(
-                node.getCentroid().x,
-                node.getCentroid().y,
-                node.getShapeRadius(),
-                f = Configuration.INNER_NODE_FILL_COLOR,
-            )
+
+            isPartOfSomeNetwork = False
+
+            if node.checkNetworkBelonging(nodes):
+                nodeShapeFillColor = Configuration.NODE_SHAPE_IN_NETWORK_FILL_COLOR
+                nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUTLINE_COLOR
+                isPartOfSomeNetwork = True
+            else:
+                nodeShapeFillColor = Configuration.NODE_SHAPE_OUT_OF_NETWORK_FILL_COLOR
+                nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUT_OF_NETWORK_OUTLINE_COLOR
+
+            # NODE SHAPE
+                self.drawCircle(
+                    node.getCentroid().x,
+                    node.getCentroid().y,
+                    node.getShapeRadius(),
+                    f = nodeShapeFillColor,
+                )
+
+            # NODE BROADCAST RANGE
             self.drawCircle(
                 node.getCentroid().x,
                 node.getCentroid().y,
                 node.getBroadcastRange(),
-                c = Configuration.OUTER_NODE_FILL_COLOR
+                c = nodeBroadcastRangeFillColor
             )
 
             textColor = Configuration.WRONGLY_INITIALIZED_NODE_COLOR
 
-            if node.getType() == NodeType.LOCATION_AWARE:
+            if not isPartOfSomeNetwork:
                 textColor = Configuration.LOCATION_AWARE_NODE_COLOR
             else:
-                textColor = Configuration.LOCATION_IGNORANT_NODE_COLOR
+                if node.getType() == NodeType.LOCATION_AWARE:
+                    textColor = Configuration.LOCATION_AWARE_NODE_COLOR
+                elif node.getType() == NodeType.LOCATION_IGNORANT:
+                    textColor = Configuration.LOCATION_IGNORANT_NODE_COLOR
 
+            # NODE ID
             self.canvas.create_text(
                 node.getCentroid().x,
                 node.getCentroid().y,
@@ -66,6 +90,15 @@ class GuiService:
                 # text = chr(node.getId())
                 # for testing purposes
                 text = node.getId()
+            )
+
+            # SOME HELPER TEXT
+            self.canvas.create_text(
+                Configuration.HELPER_TEXT_X_DIRECTION_DISPLACEMENT,
+                Configuration.HELPER_TEXT_Y_DIRECTION_DISPLACEMENT,
+                fill = Configuration.HELPER_TEXT_COLOR,
+                font = Configuration.FONT,
+                text = helperText
             )
 
     def drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR):
