@@ -62,7 +62,6 @@ class RoutingService:
             # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
 
-            self.__delayExecution()
         if destId != nextHop:
             LogService.log('Packet is dropped :(')
         else:
@@ -85,7 +84,6 @@ class RoutingService:
             # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getLocationProxyNextHop(packet)
 
-            self.__delayExecution()
         if destId != nextHop:
             LogService.log('Packet dropped :(')
         else:
