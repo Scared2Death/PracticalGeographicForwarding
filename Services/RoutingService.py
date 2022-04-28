@@ -51,15 +51,11 @@ class RoutingService:
         destId = packet.destId
         srcNode = self.__nodeService.getNodes()[srcId]
 
-        # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
-
-        # PACKET VISUALIZATION / RENDERING SO THAT THE ROUTE TAKEN CAN BE TRACKED
-
         nextHop = srcNode.getBasicNextHop(packet)
+
         while nextHop is not None and destId != nextHop:
             LogService.log('Next hop: {}'.format(nextHop))
 
-            # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
 
         if destId != nextHop:
@@ -73,15 +69,11 @@ class RoutingService:
         destId = packet.destId
         srcNode = self.__nodeService.getNodes()[srcId]
 
-        # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
-
-        # PACKET VISUALIZATION / RENDERING SO THAT THE ROUTE TAKEN CAN BE TRACKED
-
         nextHop = srcNode.getLocationProxyNextHop(packet)
+
         while nextHop is not None and destId != nextHop:
             LogService.log('Next hop: {}'.format(nextHop))
 
-            # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getLocationProxyNextHop(packet)
 
         if destId != nextHop:

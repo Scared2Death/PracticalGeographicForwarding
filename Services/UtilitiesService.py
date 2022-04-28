@@ -27,17 +27,20 @@ class UtilitiesService:
     @staticmethod
     def generateINFNodes():
 
-        infNodes = {int : Node}
-        for key in Configuration.INF_NODE_COORDINATES:
-            centroid = Centroid(key, Configuration.INF_NODE_COORDINATES[key])
+        infNodes : {int: Node} = {}
+        for coordinatePair in Configuration.INF_NODE_COORDINATES:
+
+            centroid = Centroid(coordinatePair[0], coordinatePair[1])
             shapeRadius = Configuration.INF_NODE_SHAPE_RADIUS
             broadcastRange = Configuration.INF_NODE_BROADCAST_RANGE_RADIUS
             nodeType = NodeType.LOCATION_AWARE
-            nodeId = ++Configuration.BASE_NODE_ID
+            nodeId = Configuration.BASE_NODE_ID
 
             infNode = Node(centroid, shapeRadius, broadcastRange, nodeType, nodeId)
 
             infNodes[nodeId] = infNode
+
+            Configuration.BASE_NODE_ID += 1
 
         return infNodes
 

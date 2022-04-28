@@ -17,6 +17,7 @@ __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAU
 def main(x = None, y = None, event = None):
     # initialization
     # reinitialization
+
     main.__nodeService = NodesService()
     main.__routingService = RoutingService(main.__nodeService)
     main.__routingService.updateRoutingTables()
@@ -39,19 +40,23 @@ def __incurAutomaticSimulation():
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
     main.__routingService.updateRoutingTables()
+
+
+
+
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
-    main.__nodeService.printRoutingTables()
+
+    # main.__nodeService.printRoutingTables()
 
 # for testing purposes
 def __basicRouting(event):
-    LogService.log('\nBasic Forwarding\n')
+    # LogService.log('\nBasic Forwarding\n')
 
-    # RENDERING SHOULD BE REFACTORED
     main.__routingService.forwardBasic(__createPacket())
 
 # for testing purposes
 def __locationProxyRouting(event):
-    LogService.log('\nLocation Proxy Forwarding\n')
+    # LogService.log('\nLocation Proxy Forwarding\n')
     main.__routingService.forwardLocationProxy(__createPacket())
 
 def __turnLocationProxyOn(event):
@@ -68,10 +73,14 @@ def __turnLocationProxyOff(event):
     main.__nodeService.printRoutingTables()
 
 def __turnIntermediateNodeForwardingOn(event):
+
     infNodes = main.__nodeService.getINFNodes().values()
 
     isRenderingINFNodes = True
     __ui.render(infNodes, __getHelperText(), isRenderingINFNodes)
+
+    # other todos ...
+
 
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
