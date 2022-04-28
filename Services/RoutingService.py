@@ -47,26 +47,13 @@ class RoutingService:
         # self.__nodeService.printRoutingTables()
 
     # Basic Routing
-    def forwardBasic(self, packet):
-        srcId = packet.srcId
-        destId = packet.destId
-        srcNode = self.__nodeService.getNodes()[srcId]
+    def getBasicForwardNextHop(self, packet, nextHop = None):
+        srcNode = self.__nodeService.getNodes()[packet.srcId]
 
-        # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
-
-        # PACKET VISUALIZATION / RENDERING SO THAT THE ROUTE TAKEN CAN BE TRACKED
-
-        nextHop = srcNode.getBasicNextHop(packet)
-        while nextHop is not None and destId != nextHop:
-            LogService.log('Next hop: {}'.format(nextHop))
-
-            # SHOULD VISUALIZE / RENDER THE NEXT HOP
-            nextHop = self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
-
-        if destId != nextHop:
-            LogService.log('Packet is dropped :(')
+        if (nextHop == None):
+            return srcNode.getBasicNextHop(packet)
         else:
-            LogService.log('Packet is delivered at node {} :)'.format(nextHop))
+            return self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
 
     # Location Proxy Routing
     def forwardLocationProxy(self, packet):
@@ -74,15 +61,11 @@ class RoutingService:
         destId = packet.destId
         srcNode = self.__nodeService.getNodes()[srcId]
 
-        # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
-
-        # PACKET VISUALIZATION / RENDERING SO THAT THE ROUTE TAKEN CAN BE TRACKED
-
         nextHop = srcNode.getLocationProxyNextHop(packet)
+
         while nextHop is not None and destId != nextHop:
             LogService.log('Next hop: {}'.format(nextHop))
 
-            # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getLocationProxyNextHop(packet)
 
         if destId != nextHop:

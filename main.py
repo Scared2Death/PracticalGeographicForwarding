@@ -12,11 +12,15 @@ import traceback
 __nodeService : NodesService = None
 __routingService : RoutingService = None
 
+__isNewSendingInitiatable = True
+packetLocations = []
+
 __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
 def main(x = None, y = None, event = None):
     # initialization
     # reinitialization
+
     main.__nodeService = NodesService()
     main.__routingService = RoutingService(main.__nodeService)
     main.__routingService.updateRoutingTables()
@@ -39,20 +43,34 @@ def __incurAutomaticSimulation():
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
     main.__routingService.updateRoutingTables()
+
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
-    main.__nodeService.printRoutingTables()
 
-# for testing purposes
+    # main.__nodeService.printRoutingTables()
+
 def __basicRouting(event):
-    LogService.log('\nBasic Forwarding\n')
+    packetSendingDetails = __askForPacketSendingDetails()
+    packet = __createPacket(packetSendingDetails)
+    # LogService.log('\nBasic Forwarding\n')
 
-    # RENDERING SHOULD BE REFACTORED
-    main.__routingService.forwardBasic(__createPacket())
+    packetLocations.clear()
 
-# for testing purposes
+    nextHop = main.__routingService.getBasicForwardNextHop(packet)
+    while nextHop is not None and packet.destId != nextHop:
+        LogService.log('Next hop: {}'.format(nextHop))
+        nextHop = main.__routingService.getBasicForwardNextHop(packet, nextHop)
+
+    if packet.destId != nextHop:
+        LogService.log('Packet is dropped :(')
+    else:
+        LogService.log('Packet is delivered at node {} :)'.format(nextHop))
+
 def __locationProxyRouting(event):
-    LogService.log('\nLocation Proxy Forwarding\n')
-    main.__routingService.forwardLocationProxy(__createPacket())
+    packetSendingDetails = __askForPacketSendingDetails()
+    packet = __createPacket(packetSendingDetails)
+    # LogService.log('\nLocation Proxy Forwarding\n')
+    routingResults = main.__routingService.forwardLocationProxy(packet)
+
 
 def __turnLocationProxyOn(event):
     main.__nodeService.setWithLocationProxy(True)
@@ -68,10 +86,13 @@ def __turnLocationProxyOff(event):
     main.__nodeService.printRoutingTables()
 
 def __turnIntermediateNodeForwardingOn(event):
+
     infNodes = main.__nodeService.getINFNodes().values()
 
     isRenderingINFNodes = True
     __ui.render(infNodes, __getHelperText(), isRenderingINFNodes)
+
+    # other todos ...
 
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
@@ -85,7 +106,7 @@ __ui = GuiService(
     __turnIntermediateNodeForwardingOn,
     __toggleAutomaticSimulation)
 
-def __createPacket():
+def __askForPacketSendingDetails():
     src = input('Source: ')
     # Source may or may not know its own location
     srcLocation = main.__nodeService.getNodes()[int(src)].getLocation()
@@ -94,8 +115,17 @@ def __createPacket():
     destLocation = main.__nodeService.getNodes()[int(dest)].getCentroid()
     msg = input('Message: ')
 
-    packet = Packet(int(src), srcLocation, int(dest), destLocation, msg)
-    packet.setCentroid(srcLocation)
+    return (int(src), srcLocation, int(dest), destLocation, msg)
+
+def __createPacket(packetSendingDetails):
+    src = packetSendingDetails[0]
+    srcLocation = packetSendingDetails[1]
+    dest = packetSendingDetails[2]
+    destLocation = packetSendingDetails[3]
+    msg = packetSendingDetails[4]
+
+    packet = Packet(src, srcLocation, dest, destLocation, msg)
+    packet.setLocation(srcLocation)
 
     return packet
 

@@ -48,9 +48,6 @@ class GuiService:
 
             isPartOfSomeNetwork = False
 
-            print(type(node))
-            return
-
             if not isRenderingINFNodes:
                 if node.checkNetworkBelonging(nodes):
                     nodeShapeFillColor = Configuration.NODE_IN_NETWORK_SHAPE_FILL_COLOR

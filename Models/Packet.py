@@ -8,7 +8,7 @@ class Packet:
     destLocation = None
     message = 'hello'
 
-    __centroid: Centroid = None
+    __location: Centroid = None
 
     def __init__(self, srcId, srcLocation, destId, destLocation, message):
         self.srcId = srcId
@@ -20,8 +20,8 @@ class Packet:
     def __repr__(self):
         return 'Packet (srcId = {}, srcLocation = {}, destId = {}, destLocation = {}, message = {})'.format(self.srcId, self.srcLocation, self.destId, self.destLocation, self.message)
 
-    def getCentroid(self):
+    def getLocation(self):
         return self.__centroid
 
-    def setCentroid(self, centroid):
+    def setLocation(self, centroid):
         self.__centroid = centroid
