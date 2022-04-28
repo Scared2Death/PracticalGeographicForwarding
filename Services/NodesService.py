@@ -10,7 +10,7 @@ import pprint
 class NodesService:
 
     __nodesAreInitialized = False
-    __nodes = {int: Node}
+    __nodes = {}
     __withLocationProxy = False
 
     def __initializeNodes(self):
@@ -62,6 +62,12 @@ class NodesService:
 
         else:
             return self.__nodes
+
+    def getINFNodes(self):
+        self.__nodes.clear()
+        self.__nodes = UtilitiesService.generateINFNodes()
+
+        return self.__nodes
 
     def isWithLocationProxy(self):
         return self.__withLocationProxy

@@ -9,8 +9,10 @@ from Services.LogService import LogService
 
 import traceback
 
-__nodeService = None
-__routingService = None
+__nodeService : NodesService = None
+__routingService : RoutingService = None
+
+__isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
 def main(x = None, y = None, event = None):
     # initialization
@@ -19,13 +21,25 @@ def main(x = None, y = None, event = None):
     main.__routingService = RoutingService(main.__nodeService)
     main.__routingService.updateRoutingTables()
     main.__nodeService.printRoutingTables()
-    __ui.renderNodes(main.__nodeService.getNodes().values())
+
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
+    __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
     __ui.loop()
+
+def __toggleAutomaticSimulation(event):
+    global __isAutomaticSimulation
+    __isAutomaticSimulation = not __isAutomaticSimulation
+
+def __incurAutomaticSimulation():
+    if __isAutomaticSimulation:
+        __move()
+
+    __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
 
 def __move(x = None, y = None, event = None):
     main.__nodeService.incurNodeMovements()
     main.__routingService.updateRoutingTables()
-    __ui.renderNodes(main.__nodeService.getNodes().values())
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
     main.__nodeService.printRoutingTables()
 
 # for testing purposes
@@ -53,6 +67,12 @@ def __turnLocationProxyOff(event):
     main.__routingService.updateRoutingTables()
     main.__nodeService.printRoutingTables()
 
+def __turnIntermediateNodeForwardingOn(event):
+    infNodes = main.__nodeService.getINFNodes().values()
+
+    isRenderingINFNodes = True
+    __ui.render(infNodes, __getHelperText(), isRenderingINFNodes)
+
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
     Configuration.GUI_WINDOW_HEIGHT,
@@ -61,8 +81,9 @@ __ui = GuiService(
     __basicRouting,
     __locationProxyRouting,
     __turnLocationProxyOn,
-    __turnLocationProxyOff
-)
+    __turnLocationProxyOff,
+    __turnIntermediateNodeForwardingOn,
+    __toggleAutomaticSimulation)
 
 def __createPacket():
     src = input('Source: ')
@@ -77,6 +98,16 @@ def __createPacket():
     packet.setCentroid(srcLocation)
 
     return packet
+
+def __getHelperText():
+    return "Restart: [{}] \n".format(Configuration.RESTART_KEY) + \
+           "Move: [{}] \n".format(Configuration.MOVEMENT_KEY) + \
+           "Basic routing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
+           "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
+           "Turn location proxy on: [{}] \n".format(Configuration.LOCATION_PROXY_ON_KEY) + \
+           "Turn location proxy off: [{}]\n".format(Configuration.LOCATION_PROXY_OFF_KEY) + \
+           "Turn intermediate node forwarding on: [{}]\n".format(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY) + \
+           "Toggle automatic simulation: [{}]".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY)
 
 try:
     main()

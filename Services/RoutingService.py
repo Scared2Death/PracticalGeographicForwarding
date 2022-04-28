@@ -52,8 +52,6 @@ class RoutingService:
         destId = packet.destId
         srcNode = self.__nodeService.getNodes()[srcId]
 
-        # TEMP DELAY -> PERHAPS SHOULD BE SYNCHRONIZED WITH THE MOVEMENTS INCURRED
-        self.__delayExecution()
         # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
 
         # PACKET VISUALIZATION / RENDERING SO THAT THE ROUTE TAKEN CAN BE TRACKED
@@ -65,7 +63,6 @@ class RoutingService:
             # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
 
-            self.__delayExecution()
         if destId != nextHop:
             LogService.log('Packet is dropped :(')
         else:
@@ -76,9 +73,6 @@ class RoutingService:
         srcId = packet.srcId
         destId = packet.destId
         srcNode = self.__nodeService.getNodes()[srcId]
-
-        # TEMP DELAY -> PERHAPS SHOULD BE SYNCHRONIZED WITH THE MOVEMENTS INCURRED
-        self.__delayExecution()
 
         # NOW WHEN A SENDING IS INITIATED, NO MOVEMENT OF THE NODES OCCUR, I GUESS, THOUGH IT GENERALLY HAPPENS I THINK
 
@@ -91,11 +85,7 @@ class RoutingService:
             # SHOULD VISUALIZE / RENDER THE NEXT HOP
             nextHop = self.__nodeService.getNodes()[nextHop].getLocationProxyNextHop(packet)
 
-            self.__delayExecution()
         if destId != nextHop:
             LogService.log('Packet dropped :(')
         else:
             LogService.log('Packet is delivered at node {} :)'.format(nextHop))
-
-    def __delayExecution(self):
-        UtilitiesService.delayExecution()

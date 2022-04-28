@@ -255,3 +255,19 @@ class Node:
                     removed = True
                     # LogService.log('\t\tRemoved {} from table of {}'.format(dest, self.__nodeId))
         return removed
+
+    def checkNetworkBelonging(self, otherNodes):
+
+        hasAnyIntersection = False
+
+        for otherNode in otherNodes:
+
+            if self == otherNode:
+                continue
+            else:
+                hasAnyIntersection = utilitiesService.UtilitiesService.checkNodeIntersection(self, otherNode)
+
+                if hasAnyIntersection:
+                    break;
+
+        return hasAnyIntersection
