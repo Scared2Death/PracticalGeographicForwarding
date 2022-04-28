@@ -7,7 +7,7 @@ from Models.Packet import Packet
 
 class GuiService:
 
-    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff,     toggleAutomaticSimulation):
+    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff, turnIntermediateNodeForwardingOn, toggleAutomaticSimulation):
 
         self.window = Tk()
 
@@ -24,12 +24,13 @@ class GuiService:
         self.window.bind(Configuration.LOCATION_PROXY_ROUTING_KEY, locationProxyRouting)
         self.window.bind(Configuration.LOCATION_PROXY_ON_KEY, turnLocationProxyOn)
         self.window.bind(Configuration.LOCATION_PROXY_OFF_KEY, turnLocationProxyOff)
+        self.window.bind(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY, turnIntermediateNodeForwardingOn)
         self.window.bind(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY, toggleAutomaticSimulation)
 
     def loop(self):
         self.window.mainloop()
 
-    def render(self, nodes, helperText: str):
+    def render(self, nodes, helperText: str, isRenderingINFNodes = False):
         # packet: Packet
 
         # # INITIAL SOMETHING
@@ -47,21 +48,29 @@ class GuiService:
 
             isPartOfSomeNetwork = False
 
-            if node.checkNetworkBelonging(nodes):
-                nodeShapeFillColor = Configuration.NODE_IN_NETWORK_SHAPE_FILL_COLOR
-                nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUTLINE_COLOR
-                isPartOfSomeNetwork = True
+            print(type(node))
+            return
+
+            if not isRenderingINFNodes:
+                if node.checkNetworkBelonging(nodes):
+                    nodeShapeFillColor = Configuration.NODE_IN_NETWORK_SHAPE_FILL_COLOR
+                    nodeBroadcastRangeFillColor = Configuration.NODE_BROADCAST_RANGE_OUTLINE_COLOR
+                    isPartOfSomeNetwork = True
+                else:
+                    nodeShapeFillColor = Configuration.NODE_OUT_OF_NETWORK_SHAPE_FILL_COLOR
+                    nodeBroadcastRangeFillColor = Configuration.NODE_OUT_OF_NETWORK_BROADCAST_RANGE_OUTLINE_COLOR
+
             else:
-                nodeShapeFillColor = Configuration.NODE_OUT_OF_NETWORK_SHAPE_FILL_COLOR
-                nodeBroadcastRangeFillColor = Configuration.NODE_OUT_OF_NETWORK_BROADCAST_RANGE_OUTLINE_COLOR
+                nodeShapeFillColor = Configuration.INF_NODE_SHAPE_FILL_COLOR
+                nodeBroadcastRangeFillColor = Configuration.INF_NODE_BROADCAST_RANGE_OUTLINE_COLOR
 
             # NODE SHAPE
-                self.drawCircle(
-                    node.getCentroid().x,
-                    node.getCentroid().y,
-                    node.getShapeRadius(),
-                    f = nodeShapeFillColor,
-                )
+            self.drawCircle(
+                node.getCentroid().x,
+                node.getCentroid().y,
+                node.getShapeRadius(),
+                f = nodeShapeFillColor
+            )
 
             # NODE BROADCAST RANGE
             self.drawCircle(

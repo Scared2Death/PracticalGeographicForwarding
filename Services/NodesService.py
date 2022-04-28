@@ -63,6 +63,12 @@ class NodesService:
         else:
             return self.__nodes
 
+    def getINFNodes(self):
+        self.__nodes.clear()
+        self.__nodes = UtilitiesService.generateINFNodes()
+
+        return self.__nodes
+
     def isWithLocationProxy(self):
         return self.__withLocationProxy
 

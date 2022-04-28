@@ -15,14 +15,31 @@ class UtilitiesService:
     def generateNode():
 
         centroid = UtilitiesService.__generateCentroid(Configuration.GUI_WINDOW_WIDTH, Configuration.GUI_WINDOW_HEIGHT)
-        shapeRadius = UtilitiesService.__generateShapeRadius(Configuration.SHAPE_RADIUS, Configuration.SHAPE_RADIUS)
+        shapeRadius = UtilitiesService.__generateShapeRadius(Configuration.NODE_SHAPE_RADIUS, Configuration.NODE_SHAPE_RADIUS)
         broadcastRange = UtilitiesService.__generateBroadcastRange(Configuration.MIN_BROADCAST_RANGE, Configuration.MAX_BROADCAST_RANGE)
         nodeType = UtilitiesService.__getNodeType()
-        nodeId = Configuration.NODE_ID
+        nodeId = Configuration.BASE_NODE_ID
         # probably not a great idea
-        Configuration.NODE_ID += 1
+        Configuration.BASE_NODE_ID += 1
 
         return Node(centroid, shapeRadius, broadcastRange, nodeType, nodeId)
+
+    @staticmethod
+    def generateINFNodes():
+
+        infNodes = {int : Node}
+        for key in Configuration.INF_NODE_COORDINATES:
+            centroid = Centroid(key, Configuration.INF_NODE_COORDINATES[key])
+            shapeRadius = Configuration.INF_NODE_SHAPE_RADIUS
+            broadcastRange = Configuration.INF_NODE_BROADCAST_RANGE_RADIUS
+            nodeType = NodeType.LOCATION_AWARE
+            nodeId = ++Configuration.BASE_NODE_ID
+
+            infNode = Node(centroid, shapeRadius, broadcastRange, nodeType, nodeId)
+
+            infNodes[nodeId] = infNode
+
+        return infNodes
 
     @staticmethod
     def __generateCentroid(maxCentroidX, maxCentroidY):

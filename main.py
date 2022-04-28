@@ -9,8 +9,8 @@ from Services.LogService import LogService
 
 import traceback
 
-__nodeService = None
-__routingService = None
+__nodeService : NodesService = None
+__routingService : RoutingService = None
 
 __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
@@ -31,7 +31,6 @@ def __toggleAutomaticSimulation(event):
     __isAutomaticSimulation = not __isAutomaticSimulation
 
 def __incurAutomaticSimulation():
-
     if __isAutomaticSimulation:
         __move()
 
@@ -68,6 +67,12 @@ def __turnLocationProxyOff(event):
     main.__routingService.updateRoutingTables()
     main.__nodeService.printRoutingTables()
 
+def __turnIntermediateNodeForwardingOn(event):
+    infNodes = main.__nodeService.getINFNodes().values()
+
+    isRenderingINFNodes = True
+    __ui.render(infNodes, __getHelperText(), isRenderingINFNodes)
+
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
     Configuration.GUI_WINDOW_HEIGHT,
@@ -77,6 +82,7 @@ __ui = GuiService(
     __locationProxyRouting,
     __turnLocationProxyOn,
     __turnLocationProxyOff,
+    __turnIntermediateNodeForwardingOn,
     __toggleAutomaticSimulation)
 
 def __createPacket():
@@ -100,6 +106,7 @@ def __getHelperText():
            "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
            "Turn location proxy on: [{}] \n".format(Configuration.LOCATION_PROXY_ON_KEY) + \
            "Turn location proxy off: [{}]\n".format(Configuration.LOCATION_PROXY_OFF_KEY) + \
+           "Turn intermediate node forwarding on: [{}]\n".format(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY) + \
            "Toggle automatic simulation: [{}]".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY)
 
 try:
