@@ -22,8 +22,7 @@ def main(x = None, y = None, event = None):
     # reinitialization
 
     main.__nodeService = NodesService()
-    main.__routingService = RoutingService(main.__nodeService)
-    main.__routingService.updateRoutingTables()
+    main.__routingService = RoutingService(main.__nodeService, False)
     main.__nodeService.printRoutingTables()
 
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
@@ -49,12 +48,17 @@ def __move(x = None, y = None, event = None):
     # main.__nodeService.printRoutingTables()
 
 def __basicRouting(event):
+    main.__routingService.setInLocationProxyMode(False)
+    main.__nodeService.printRoutingTables()
+
     packetSendingDetails = __askForPacketSendingDetails()
     packet = __createPacket(packetSendingDetails)
     # LogService.log('\nBasic Forwarding\n')
 
     packetLocations.clear()
 
+    # LINES 62 - 70 CAN BE REPLACED WITH:
+    # __routing(packet)
     nextHop = main.__routingService.getBasicForwardNextHop(packet)
     while nextHop is not None and packet.destId != nextHop:
         LogService.log('Next hop: {}'.format(nextHop))
@@ -66,24 +70,26 @@ def __basicRouting(event):
         LogService.log('Packet is delivered at node {} :)'.format(nextHop))
 
 def __locationProxyRouting(event):
+    main.__routingService.setInLocationProxyMode(True)
+    main.__nodeService.printRoutingTables()
+
     packetSendingDetails = __askForPacketSendingDetails()
     packet = __createPacket(packetSendingDetails)
     # LogService.log('\nLocation Proxy Forwarding\n')
+
+    # __routing(packet) CAN BE USED HERE AS WELL
     routingResults = main.__routingService.forwardLocationProxy(packet)
 
+def __routing(packet):
+    nextHop = main.__routingService.getNextHopInRoute(packet)
+    while nextHop is not None and packet.destId != nextHop:
+        LogService.log('Next hop: {}'.format(nextHop))
+        nextHop = main.__routingService.getNextHopInRoute(packet, nextHop)
 
-def __turnLocationProxyOn(event):
-    main.__nodeService.setWithLocationProxy(True)
-    LogService.log('Location Proxy mode is on')
-    main.__routingService.updateRoutingTables()
-    main.__nodeService.printRoutingTables()
-
-def __turnLocationProxyOff(event):
-    main.__nodeService.setWithLocationProxy(False)
-    LogService.log('Location Proxy mode is off')
-    main.__routingService.clearRoutingTables()
-    main.__routingService.updateRoutingTables()
-    main.__nodeService.printRoutingTables()
+    if packet.destId != nextHop:
+        LogService.log('Packet is dropped :(')
+    else:
+        LogService.log('Packet is delivered at node {} :)'.format(nextHop))
 
 def __turnIntermediateNodeForwardingOn(event):
 
@@ -101,8 +107,6 @@ __ui = GuiService(
     __move,
     __basicRouting,
     __locationProxyRouting,
-    __turnLocationProxyOn,
-    __turnLocationProxyOff,
     __turnIntermediateNodeForwardingOn,
     __toggleAutomaticSimulation)
 
@@ -134,8 +138,6 @@ def __getHelperText():
            "Move: [{}] \n".format(Configuration.MOVEMENT_KEY) + \
            "Basic routing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
            "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
-           "Turn location proxy on: [{}] \n".format(Configuration.LOCATION_PROXY_ON_KEY) + \
-           "Turn location proxy off: [{}]\n".format(Configuration.LOCATION_PROXY_OFF_KEY) + \
            "Turn intermediate node forwarding on: [{}]\n".format(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY) + \
            "Toggle automatic simulation: [{}]".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY)
 

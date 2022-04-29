@@ -11,7 +11,6 @@ class NodesService:
 
     __nodesAreInitialized = False
     __nodes = {}
-    __withLocationProxy = False
 
     def __initializeNodes(self):
 
@@ -68,12 +67,6 @@ class NodesService:
         self.__nodes = UtilitiesService.generateINFNodes()
 
         return self.__nodes
-
-    def isWithLocationProxy(self):
-        return self.__withLocationProxy
-
-    def setWithLocationProxy(self, withLocationProxy):
-        self.__withLocationProxy = withLocationProxy
 
     def incurNodeMovements(self):
         for node in self.__nodes.values():

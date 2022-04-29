@@ -178,6 +178,12 @@ class Node:
         else:
             return False
 
+    def getNextHop(self, packet, inLocationProxyMode):
+        if inLocationProxyMode:
+            return self.getLocationProxyNextHop(packet)
+        else:
+            return self.getBasicNextHop(packet)
+
     def getBasicNextHop(self, packet):
         dest = packet.destId
         if self.__routingTable is None:

@@ -7,7 +7,7 @@ from Models.Packet import Packet
 
 class GuiService:
 
-    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnLocationProxyOn, turnLocationProxyOff, turnIntermediateNodeForwardingOn, toggleAutomaticSimulation):
+    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnIntermediateNodeForwardingOn, toggleAutomaticSimulation):
 
         self.window = Tk()
 
@@ -22,8 +22,6 @@ class GuiService:
         self.window.bind(Configuration.MOVEMENT_KEY, move)
         self.window.bind(Configuration.BASIC_ROUTING_KEY, basicRouting)
         self.window.bind(Configuration.LOCATION_PROXY_ROUTING_KEY, locationProxyRouting)
-        self.window.bind(Configuration.LOCATION_PROXY_ON_KEY, turnLocationProxyOn)
-        self.window.bind(Configuration.LOCATION_PROXY_OFF_KEY, turnLocationProxyOff)
         self.window.bind(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY, turnIntermediateNodeForwardingOn)
         self.window.bind(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY, toggleAutomaticSimulation)
 

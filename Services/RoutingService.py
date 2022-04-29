@@ -8,9 +8,24 @@ from Constants import NodeType
 class RoutingService:
 
     __nodeService = None
+    __inLocationProxyMode = False
 
-    def __init__(self, nodeService):
+    def __init__(self, nodeService, inLocationProxyMode):
         self.__nodeService = nodeService
+        self.__inLocationProxyMode = inLocationProxyMode
+        self.updateRoutingTables()
+
+    def setInLocationProxyMode(self, inLocationProxyMode):
+        if self.__inLocationProxyMode and not inLocationProxyMode:
+            self.clearRoutingTables()
+
+        if self.__inLocationProxyMode != inLocationProxyMode:
+            self.__inLocationProxyMode = inLocationProxyMode
+            LogService.log('Location Proxy mode is set to: {}'.format(inLocationProxyMode))
+            self.updateRoutingTables()
+
+    def isInLocationProxyMode(self):
+        return self.__inLocationProxyMode
 
     def clearRoutingTables(self):
         for node in self.__nodeService.getNodes().values():
@@ -38,7 +53,7 @@ class RoutingService:
                       'seqNum': node.getSeqNum(),
                       'table': node.getRoutingTable()}
             for neighbor in neighbors.values():
-                updated = neighbor.processRoutingTableUpdate(update, self.__nodeService.isWithLocationProxy())
+                updated = neighbor.processRoutingTableUpdate(update, self.__inLocationProxyMode)
                 # LogService.log('\t\t\tNeighbor {} of {} updated: {}'.format(neighbor.getId(), node.getId(), updated))
                 if updated:
                     queue.append(neighbor)
@@ -46,7 +61,15 @@ class RoutingService:
         # LogService.log('Routing Tables after advertisement of {}'.format(advertisedNode.getId()))
         # self.__nodeService.printRoutingTables()
 
-    # Basic Routing
+    # Finds the next hop based on the current value of __inLocationProxyMode field
+    def getNextHopInRoute(self, packet, nextHop = None):
+        srcNode = self.__nodeService.getNodes()[packet.srcId]
+        if (nextHop == None):
+            return srcNode.getNextHop(packet, self.__inLocationProxyMode)
+        else:
+            return self.__nodeService.getNodes()[nextHop].getNextHop(packet, self.__inLocationProxyMode)
+
+    # THIS CAN BE DELETED IF getNextHopInRoute is used
     def getBasicForwardNextHop(self, packet, nextHop = None):
         srcNode = self.__nodeService.getNodes()[packet.srcId]
 
@@ -55,7 +78,7 @@ class RoutingService:
         else:
             return self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
 
-    # Location Proxy Routing
+    # THIS CAN BE DELETED IF getNextHopInRoute is used
     def forwardLocationProxy(self, packet):
         srcId = packet.srcId
         destId = packet.destId
