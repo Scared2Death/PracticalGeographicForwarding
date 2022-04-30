@@ -62,6 +62,9 @@ class NodesService:
         else:
             return self.__nodes
 
+    def getNodeByID(self, id):
+        return self.__nodes[id]
+
     def getINFNodes(self):
         self.__nodes.clear()
         self.__nodes = UtilitiesService.generateINFNodes()

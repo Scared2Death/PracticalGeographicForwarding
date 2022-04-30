@@ -13,7 +13,14 @@ __nodeService : NodesService = None
 __routingService : RoutingService = None
 
 __isNewSendingInitiatable = True
-packetLocations = []
+__isSendingInProgress = False
+
+__packet : Packet = None
+__packetLocations = []
+__nextHop = None
+__routingResult : [] = None
+
+__isRenderingINFNodes = False
 
 __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
@@ -23,7 +30,7 @@ def main(x = None, y = None, event = None):
 
     main.__nodeService = NodesService()
     main.__routingService = RoutingService(main.__nodeService, False)
-    main.__nodeService.printRoutingTables()
+    # main.__nodeService.printRoutingTables()
 
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
     __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
@@ -40,96 +47,181 @@ def __incurAutomaticSimulation():
     __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
 
 def __move(x = None, y = None, event = None):
+    global __isRenderingINFNodes
+    if __isRenderingINFNodes:
+        return
+
+    global __nextHop
+    global __isSendingInProgress
+    global __isNewSendingInitiatable
+    global __routingResult
+
     main.__nodeService.incurNodeMovements()
     main.__routingService.updateRoutingTables()
 
-    __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
+    if __isSendingInProgress:
+
+        __routingResult = []
+
+        if __nextHop is None:
+            __nextHop = __routing(__packet)
+        else:
+            __nextHop = __routing(__packet, __nextHop)
+
+        if __nextHop is not None and __packet.destId != __nextHop:
+            __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+            # LogService.log('Next hop: {}'.format(__nextHop))
+            __routingResult.append('Next hop: {}'.format(__nextHop))
+            __routingResult.append(None)
+        else:
+            if __packet.destId != __nextHop:
+                # LogService.log('Packet is dropped :(')
+                __routingResult.append('Packet is dropped :(')
+                __routingResult.append(False)
+            else:
+                __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                # LogService.log('Packet is delivered at node {} :)'.format(__nextHop))
+                __routingResult.append('Packet is delivered at node {} :)'.format(__nextHop))
+                __routingResult.append(True)
+
+            __isSendingInProgress = False
+            __isNewSendingInitiatable = True
+    else:
+        if __packetLocations.count != 0:
+            __packetLocations.clear()
+        __routingResult = None
+
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations, routingResult = __routingResult)
 
     # main.__nodeService.printRoutingTables()
 
-def __basicRouting(event):
-    main.__routingService.setInLocationProxyMode(False)
-    main.__nodeService.printRoutingTables()
-
-    packetSendingDetails = __askForPacketSendingDetails()
-    packet = __createPacket(packetSendingDetails)
-    # LogService.log('\nBasic Forwarding\n')
-
-    packetLocations.clear()
-
-    # LINES 62 - 70 CAN BE REPLACED WITH:
-    # __routing(packet)
-    nextHop = main.__routingService.getBasicForwardNextHop(packet)
-    while nextHop is not None and packet.destId != nextHop:
-        LogService.log('Next hop: {}'.format(nextHop))
-        nextHop = main.__routingService.getBasicForwardNextHop(packet, nextHop)
-
-    if packet.destId != nextHop:
-        LogService.log('Packet is dropped :(')
+def checkNewSendingInitiatability():
+    global __isNewSendingInitiatable
+    if not __isNewSendingInitiatable:
+        LogService.log("A new sending is not initiatable . A current sending process is being carried out .")
+        return False
     else:
-        LogService.log('Packet is delivered at node {} :)'.format(nextHop))
+        __isNewSendingInitiatable = False
+        return True
 
-def __locationProxyRouting(event):
-    main.__routingService.setInLocationProxyMode(True)
-    main.__nodeService.printRoutingTables()
+def __initiateBasicRoutingSending(event):
+
+    if not checkNewSendingInitiatability():
+        return
 
     packetSendingDetails = __askForPacketSendingDetails()
-    packet = __createPacket(packetSendingDetails)
-    # LogService.log('\nLocation Proxy Forwarding\n')
 
-    # __routing(packet) CAN BE USED HERE AS WELL
-    routingResults = main.__routingService.forwardLocationProxy(packet)
+    # UI WINDOW OR WHATEVER
+    if packetSendingDetails is None:
+        LogService.log("Wrongful inputs provided .")
+        global __isNewSendingInitiatable
+        __isNewSendingInitiatable = True
+        return
 
-def __routing(packet):
-    nextHop = main.__routingService.getNextHopInRoute(packet)
-    while nextHop is not None and packet.destId != nextHop:
-        LogService.log('Next hop: {}'.format(nextHop))
+    __packetLocations.clear()
+
+    global __isSendingInProgress
+    __isSendingInProgress = True
+
+    main.__routingService.setInLocationProxyMode(False)
+    # main.__nodeService.printRoutingTables()
+
+    global __packet
+    __packet = __createPacket(packetSendingDetails)
+    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+
+def __initiateLocationProxyRoutingSending(event):
+
+    if not checkNewSendingInitiatability():
+        return
+
+    packetSendingDetails = __askForPacketSendingDetails()
+
+    # UI WINDOW OR WHATEVER
+    if packetSendingDetails is None:
+        LogService.log("Wrongful inputs provided .")
+        global __isNewSendingInitiatable
+        __isNewSendingInitiatable = True
+        return
+
+    __packetLocations.clear()
+
+    global __isSendingInProgress
+    __isSendingInProgress = True
+
+    main.__routingService.setInLocationProxyMode(True)
+    # main.__nodeService.printRoutingTables()
+
+    global __packet
+    __packet = __createPacket(packetSendingDetails)
+    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+
+def __routing(packet, nextHop = None):
+    if nextHop is None:
+        nextHop = main.__routingService.getNextHopInRoute(packet)
+    else:
         nextHop = main.__routingService.getNextHopInRoute(packet, nextHop)
 
-    if packet.destId != nextHop:
-        LogService.log('Packet is dropped :(')
-    else:
-        LogService.log('Packet is delivered at node {} :)'.format(nextHop))
+    return nextHop
 
 def __turnIntermediateNodeForwardingOn(event):
-
     infNodes = main.__nodeService.getINFNodes().values()
 
-    isRenderingINFNodes = True
-    __ui.render(infNodes, __getHelperText(), isRenderingINFNodes)
+    global __isRenderingINFNodes
+    __isRenderingINFNodes = True
+
+    __ui.render(infNodes, __getHelperText(), __packetLocations, __isRenderingINFNodes)
 
     # other todos ...
+
+def __turnIntermediateNodeForwardingOff(event):
+    global __isRenderingINFNodes
+    __isRenderingINFNodes = False
+    main()
 
 __ui = GuiService(
     Configuration.GUI_WINDOW_WIDTH,
     Configuration.GUI_WINDOW_HEIGHT,
     main,
     __move,
-    __basicRouting,
-    __locationProxyRouting,
+    __initiateBasicRoutingSending,
+    __initiateLocationProxyRoutingSending,
     __turnIntermediateNodeForwardingOn,
+    __turnIntermediateNodeForwardingOff,
     __toggleAutomaticSimulation)
 
 def __askForPacketSendingDetails():
     src = input('Source: ')
     # Source may or may not know its own location
-    srcLocation = main.__nodeService.getNodes()[int(src)].getLocation()
+    # srcCentroid => needed for visualization
+
+    if int(src) in main.__nodeService.getNodes():
+        srcLocation = main.__nodeService.getNodeByID(int(src)).getCentroid()
+        srcCentroid = main.__nodeService.getNodeByID(int(src)).getCentroid()
+    else:
+        return None
+
     dest = input('Destination: ')
     # Destination location is always known, since we are using locations as addresses
-    destLocation = main.__nodeService.getNodes()[int(dest)].getCentroid()
+
+    if int(dest) in main.__nodeService.getNodes():
+        destLocation = main.__nodeService.getNodeByID(int(dest)).getCentroid()
+    else:
+        return None
+
     msg = input('Message: ')
 
-    return (int(src), srcLocation, int(dest), destLocation, msg)
+    return (int(src), srcLocation, srcCentroid, int(dest), destLocation, msg)
 
 def __createPacket(packetSendingDetails):
     src = packetSendingDetails[0]
     srcLocation = packetSendingDetails[1]
-    dest = packetSendingDetails[2]
-    destLocation = packetSendingDetails[3]
-    msg = packetSendingDetails[4]
+    srcCentroid = packetSendingDetails[2]
+    dest = packetSendingDetails[3]
+    destLocation = packetSendingDetails[4]
+    msg = packetSendingDetails[5]
 
-    packet = Packet(src, srcLocation, dest, destLocation, msg)
-    packet.setLocation(srcLocation)
+    packet = Packet(src, srcLocation, srcCentroid, dest, destLocation, msg)
 
     return packet
 
@@ -138,7 +230,7 @@ def __getHelperText():
            "Move: [{}] \n".format(Configuration.MOVEMENT_KEY) + \
            "Basic routing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
            "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
-           "Turn intermediate node forwarding on: [{}]\n".format(Configuration.INTERMEDIATE_NODE_FORWARDING_KEY) + \
+           "Turn intermediate node forwarding on: [{}]\n".format(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_ON_KEY) + \
            "Toggle automatic simulation: [{}]".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY)
 
 try:

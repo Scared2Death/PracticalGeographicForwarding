@@ -63,35 +63,8 @@ class RoutingService:
 
     # Finds the next hop based on the current value of __inLocationProxyMode field
     def getNextHopInRoute(self, packet, nextHop = None):
-        srcNode = self.__nodeService.getNodes()[packet.srcId]
+        srcNode = self.__nodeService.getNodeByID(packet.srcId)
         if (nextHop == None):
             return srcNode.getNextHop(packet, self.__inLocationProxyMode)
         else:
-            return self.__nodeService.getNodes()[nextHop].getNextHop(packet, self.__inLocationProxyMode)
-
-    # THIS CAN BE DELETED IF getNextHopInRoute is used
-    def getBasicForwardNextHop(self, packet, nextHop = None):
-        srcNode = self.__nodeService.getNodes()[packet.srcId]
-
-        if (nextHop == None):
-            return srcNode.getBasicNextHop(packet)
-        else:
-            return self.__nodeService.getNodes()[nextHop].getBasicNextHop(packet)
-
-    # THIS CAN BE DELETED IF getNextHopInRoute is used
-    def forwardLocationProxy(self, packet):
-        srcId = packet.srcId
-        destId = packet.destId
-        srcNode = self.__nodeService.getNodes()[srcId]
-
-        nextHop = srcNode.getLocationProxyNextHop(packet)
-
-        while nextHop is not None and destId != nextHop:
-            LogService.log('Next hop: {}'.format(nextHop))
-
-            nextHop = self.__nodeService.getNodes()[nextHop].getLocationProxyNextHop(packet)
-
-        if destId != nextHop:
-            LogService.log('Packet dropped :(')
-        else:
-            LogService.log('Packet is delivered at node {} :)'.format(nextHop))
+            return self.__nodeService.getNodeByID(nextHop).getNextHop(packet, self.__inLocationProxyMode)

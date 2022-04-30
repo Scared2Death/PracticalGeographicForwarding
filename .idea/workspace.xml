@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7fce74e0-7dfe-45a5-86a4-401449692f7a" name="Changes" comment="">
+    <list default="true" id="02b118fa-6f03-4789-8975-ac486a317766" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Configurations/Configuration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Configurations/Configuration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Packet.py" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Packet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/GuiService.py" beforeDir="false" afterPath="$PROJECT_DIR$/Services/GuiService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/NodesService.py" beforeDir="false" afterPath="$PROJECT_DIR$/Services/NodesService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/RoutingService.py" beforeDir="false" afterPath="$PROJECT_DIR$/Services/RoutingService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -17,7 +23,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="28QpRwvtLy9O4q6T6npAhK77uGD" />
+  <component name="ProjectId" id="28T4sSaVEUmLpgh1LSSuE79IrfY" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -57,11 +63,11 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="7fce74e0-7dfe-45a5-86a4-401449692f7a" name="Changes" comment="" />
-      <created>1651158661033</created>
+      <changelist id="02b118fa-6f03-4789-8975-ac486a317766" name="Changes" comment="" />
+      <created>1651227449530</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1651158661033</updated>
+      <updated>1651227449530</updated>
     </task>
     <servers />
   </component>
