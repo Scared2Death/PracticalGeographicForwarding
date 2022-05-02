@@ -9,6 +9,7 @@ class RoutingService:
 
     __nodeService = None
     __inLocationProxyMode = False
+    __inInfMode = False
 
     def __init__(self, nodeService, inLocationProxyMode):
         self.__nodeService = nodeService
@@ -26,6 +27,12 @@ class RoutingService:
 
     def isInLocationProxyMode(self):
         return self.__inLocationProxyMode
+
+    def setInInfMode(self, inInfMode):
+        self.__inInfMode = inInfMode
+
+    def isInInfMode(self):
+        return self.__inInfMode
 
     def clearRoutingTables(self):
         for node in self.__nodeService.getNodes().values():
@@ -65,6 +72,6 @@ class RoutingService:
     def getNextHopInRoute(self, packet, nextHop = None):
         srcNode = self.__nodeService.getNodeByID(packet.srcId)
         if (nextHop == None):
-            return srcNode.getNextHop(packet, self.__inLocationProxyMode)
+            return srcNode.getNextHop(packet, self.__inLocationProxyMode, self.__inInfMode)
         else:
-            return self.__nodeService.getNodeByID(nextHop).getNextHop(packet, self.__inLocationProxyMode)
+            return self.__nodeService.getNodeByID(nextHop).getNextHop(packet, self.__inLocationProxyMode, self.__inInfMode)

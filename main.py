@@ -1,4 +1,5 @@
 from Configurations import Configuration
+from Constants import InfMode
 
 from Models.Packet import Packet
 
@@ -48,6 +49,7 @@ def __incurAutomaticSimulation():
 
 def __move(x = None, y = None, event = None):
     global __nextHop
+    global __prevNextHop
     global __isSendingInProgress
     global __isNewSendingInitiatable
     global __routingResult
@@ -60,15 +62,23 @@ def __move(x = None, y = None, event = None):
         __routingResult = []
 
         if __nextHop is None:
+            __prevNextHop = __packet.srcId
             __nextHop = __routing(__packet)
         else:
+            __prevNextHop = __nextHop
             __nextHop = __routing(__packet, __nextHop)
 
-        if __nextHop is not None and __packet.destId != __nextHop:
+        if __nextHop is not None and __nextHop != 'NAK' and __packet.destId != __nextHop:
             __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
             # LogService.log('Next hop: {}'.format(__nextHop))
             __routingResult.append('Next hop: {}'.format(__nextHop))
             __routingResult.append(None)
+        # else:
+        #     if __nextHop == 'NAK':
+        #         __isSendingInProgress = False
+        #         __isNewSendingInitiatable = True
+        #         # WIP
+        #         # __initiateNakSending(__packet, __prevNextHop)
         else:
             if __packet.destId != __nextHop:
                 # LogService.log('Packet is dropped :(')
@@ -123,7 +133,7 @@ def __initiateBasicRoutingSending(event):
     # main.__nodeService.printRoutingTables()
 
     global __packet
-    __packet = __createPacket(packetSendingDetails)
+    __packet = __createPacket(packetSendingDetails, False)
     __packetLocations.append((__packet.srcId, __packet.srcCentroid))
 
 def __initiateLocationProxyRoutingSending(event):
@@ -149,7 +159,52 @@ def __initiateLocationProxyRoutingSending(event):
     # main.__nodeService.printRoutingTables()
 
     global __packet
-    __packet = __createPacket(packetSendingDetails)
+    __packet = __createPacket(packetSendingDetails, False)
+    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+
+# WIP
+def __initiateInfRoutingSending(event):
+
+    if not checkNewSendingInitiatability():
+        return
+
+    packetSendingDetails = __askForPacketSendingDetails()
+
+    # UI WINDOW OR WHATEVER
+    if packetSendingDetails is None:
+        LogService.log("Wrongful inputs provided .")
+        global __isNewSendingInitiatable
+        __isNewSendingInitiatable = True
+        return
+
+    __packetLocations.clear()
+
+    global __isSendingInProgress
+    __isSendingInProgress = True
+
+    main.__routingService.setInInfMode(True)
+    # main.__nodeService.printRoutingTables()
+
+    global __packet
+    __packet = __createPacket(packetSendingDetails, True)
+    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+
+# WIP
+def __initiateNakSending(packet, sourceId):
+
+    if not checkNewSendingInitiatability():
+        return
+
+    __packetLocations.clear()
+
+    global __isSendingInProgress
+    __isSendingInProgress = True
+
+    main.__routingService.setInInfMode(True)
+    # main.__nodeService.printRoutingTables()
+
+    global __packet
+    __packet = __createNakPacket(packet, True, sourceId)
     __packetLocations.append((__packet.srcId, __packet.srcCentroid))
 
 def __routing(packet, nextHop = None):
@@ -209,7 +264,7 @@ def __askForPacketSendingDetails():
 
     return (int(src), srcLocation, srcCentroid, int(dest), destLocation, msg)
 
-def __createPacket(packetSendingDetails):
+def __createPacket(packetSendingDetails, inInfMode):
     src = packetSendingDetails[0]
     srcLocation = packetSendingDetails[1]
     srcCentroid = packetSendingDetails[2]
@@ -218,6 +273,21 @@ def __createPacket(packetSendingDetails):
     msg = packetSendingDetails[5]
 
     packet = Packet(src, srcLocation, srcCentroid, dest, destLocation, msg)
+
+    if inInfMode:
+        srcNode = main.__nodeService.getNodeByID(src)
+        srcNode.setInfDetailsOfPacket(packet)
+
+    return packet
+
+# WIP
+def __createNakPacket(packet, inInfMode, sourceId):
+    srcNode = main.__nodeService.getNodeByID(sourceId)
+    packet = Packet(sourceId, srcNode.getLocation(), srcNode.getCentroid(), packet.srcId, packet.srcLocation, packet.message)
+    packet.setNak(True)
+    if inInfMode:
+        packet.setInfMode(InfMode.TO_INF)
+        packet.setIntermediateLocation(srcNode.getLocation())
 
     return packet
 

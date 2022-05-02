@@ -1,0 +1,3 @@
+TO_INF = "TO_INF"
+FROM_INF = "FROM_INF"
+NO_INF = "NO_INF"

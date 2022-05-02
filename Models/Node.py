@@ -2,7 +2,7 @@ from math import inf
 
 import Services.UtilitiesService as utilitiesService
 
-from Constants import NodeType
+from Constants import NodeType, InfMode
 from Services.LogService import LogService
 from Configurations import Configuration
 
@@ -19,6 +19,7 @@ class Node:
     __proxy = None
     __proxyId = None
     __radius = 0
+    __infTable = {}
 
     def __init__(self, centroid, shapeRadius, broadcastRange, nodeType, nodeId):
         self.__centroid = centroid
@@ -178,14 +179,26 @@ class Node:
         else:
             return False
 
-    def getNextHop(self, packet, inLocationProxyMode):
-        if inLocationProxyMode:
-            return self.getLocationProxyNextHop(packet)
+# When a node originates a packet, it checks to see if there is an entry for the packet’s destination in the INF table.
+# If so, the packet’s INF mode is set to TO-INF, and the intermediate location is copied into the packet header from
+# the INF table. If there is no entry in the INF table, the INF mode is set to NO-INF.
+    def setInfDetailsOfPacket(self, packet):
+        if packet.destId in self.__infTable:
+            packet.setInfMode(InfMode.TO_INF)
+            packet.setIntermediateLocation(self.__infTable[packet.destId])
         else:
-            return self.getBasicNextHop(packet)
+            packet.setInfMode(InfMode.NO_INF)
 
-    def getBasicNextHop(self, packet):
-        dest = packet.destId
+    def getNextHop(self, packet, inLocationProxyMode, inInfMode):
+        if inInfMode:
+            return self.__getInfNextHop(packet, inLocationProxyMode)
+        elif inLocationProxyMode:
+            return self.__getLocationProxyNextHop(packet, None)
+        else:
+            return self.__getBasicNextHop(packet, None)
+
+    def __getBasicNextHop(self, packet, intermediateLocation):
+        dest = float(inf) if intermediateLocation is not None else packet.destId
         if self.__routingTable is None:
             return None
         elif dest in self.__routingTable[NodeType.LOCATION_AWARE]:
@@ -196,12 +209,12 @@ class Node:
             return self.__routingTable[NodeType.LOCATION_IGNORANT][dest]['nextHop']
         elif self.isLocationAware():
             LogService.log('Trying to find node in the routing table that is physically closer to the destination...')
-            location = packet.destLocation
-            distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getLocation())
+            destLocation = intermediateLocation if intermediateLocation is not None else packet.destLocation
+            distance = utilitiesService.UtilitiesService.getCentroidDistance(destLocation, self.getLocation())
             nextHop = None
             # Only location aware nodes can be used
             for nodeId, data in self.__routingTable[NodeType.LOCATION_AWARE].items():
-                newDistance = utilitiesService.UtilitiesService.getCentroidDistance(location, data['location'])
+                newDistance = utilitiesService.UtilitiesService.getCentroidDistance(destLocation, data['location'])
                 if newDistance < distance:
                     distance = newDistance
                     nextHop = data['nextHop']
@@ -210,8 +223,8 @@ class Node:
         else:
             return None
 
-    def getLocationProxyNextHop(self, packet):
-        dest = packet.destId
+    def __getLocationProxyNextHop(self, packet, intermediateLocation):
+        dest = float(inf) if intermediateLocation is not None else packet.destId
         nextHop = None
         if self.__routingTable is None:
             return None
@@ -223,17 +236,40 @@ class Node:
             return self.__routingTable[NodeType.LOCATION_IGNORANT][dest]['nextHop']
         elif self.getLocation() is not None:
             LogService.log('Trying to find node in the routing table that is physically closer to the destination...')
-            location = packet.destLocation
-            distance = utilitiesService.UtilitiesService.getCentroidDistance(location, self.getLocation())
+            destLocation = intermediateLocation if intermediateLocation is not None else packet.destLocation
+            distance = utilitiesService.UtilitiesService.getCentroidDistance(destLocation, self.getLocation())
             for nodeType, table in self.__routingTable.items():
                 for nodeId, data in self.__routingTable[nodeType].items():
                     if data['location'] is not None:
-                        newDistance = utilitiesService.UtilitiesService.getCentroidDistance(location, data['location'])
+                        newDistance = utilitiesService.UtilitiesService.getCentroidDistance(destLocation, data['location'])
                         if newDistance < distance:
                             distance = newDistance
                             nextHop = data['nextHop']
             LogService.log('Node {} is closer to the destination'.format(nextHop))
         return nextHop
+# When a node forwards a packet,
+# it makes its forwarding decision based on the packet’s INF mode. If the packet is in the TO-INF mode, the packet is
+# forwarded to the intermediate location; otherwise, the packet is forwarded to the destination location.
+    def __getInfNextHop(self, packet, inLocationProxyMode):
+        if packet.getInfMode() == InfMode.TO_INF:
+            nextHop = self.__getNextHopForInfNextHop(packet, inLocationProxyMode, packet.getIntermediateLocation())
+
+            # If a node forwarding a TO-INF packet has no neighbor closer than itself to the intermediate point, it switches the
+            # packet to FROM-INF mode. From then on, the packet’s real destination is used to make forwarding decisions.
+            if nextHop is None:
+                packet.setInfMode(InfMode.FROM_INF)
+                packet.setIntermediateLocation(self.getLocation())
+                nextHop = self.__getNextHopForInfNextHop(packet, inLocationProxyMode, None)
+        else:
+            nextHop = self.__getNextHopForInfNextHop(packet, inLocationProxyMode, None)
+
+        return nextHop if nextHop is not None else "NAK"
+
+    def __getNextHopForInfNextHop(self, packet, inLocationProxyMode, intermediateLocation):
+        if inLocationProxyMode:
+            return self.__getLocationProxyNextHop(packet, intermediateLocation)
+        else:
+            return self.__getBasicNextHop(packet, intermediateLocation)
 
     def updateNeighbors(self, newNeighbors):
         # LogService.log('\t\tNeighbors of {} before update {}'.format(self.__nodeId, self.__neighbors.keys()))
