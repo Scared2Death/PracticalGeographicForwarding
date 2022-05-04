@@ -29,11 +29,28 @@ class UtilitiesService:
     def generateINFNodes():
 
         infNodes : {int: Node} = {}
-        for coordinatePair in Configuration.INF_NODE_COORDINATES:
+
+        for index, coordinatePair in enumerate(Configuration.INF_NODE_COORDINATES):
 
             centroid = Centroid(coordinatePair[0], coordinatePair[1])
             shapeRadius = Configuration.INF_NODE_SHAPE_RADIUS
-            broadcastRange = Configuration.INF_NODE_BROADCAST_RANGE_RADIUS
+
+            match index:
+                case 0:
+                    broadcastRange = Configuration.INF_NODE_1_BROADCASTRANGE
+                case 1:
+                    broadcastRange = Configuration.INF_NODE_2_BROADCASTRANGE
+                case 2:
+                    broadcastRange = Configuration.INF_NODE_3_BROADCASTRANGE
+                case 3:
+                    broadcastRange = Configuration.INF_NODE_4_BROADCASTRANGE
+                case 4:
+                    broadcastRange = Configuration.INF_NODE_5_BROADCASTRANGE
+                case 5:
+                    broadcastRange = Configuration.INF_NODE_6_BROADCASTRANGE
+                case 6:
+                    broadcastRange = Configuration.INF_NODE_7_BROADCASTRANGE
+
             nodeType = NodeType.LOCATION_AWARE
             nodeId = Configuration.BASE_NODE_ID
 
