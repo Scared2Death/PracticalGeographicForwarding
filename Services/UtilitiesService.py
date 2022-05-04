@@ -1,3 +1,4 @@
+import random
 from random import randint
 
 from Models.Centroid import Centroid
@@ -128,6 +129,30 @@ class UtilitiesService:
         hasIntersection = centroidDistance < (nodeOne.getBroadcastRange() + nodeTwo.getBroadcastRange())
 
         return hasIntersection
+
+    @staticmethod
+    def getMidPoint(centroidOne: Centroid, centroidTwo: Centroid):
+        x = (centroidOne.x + centroidTwo.x) / 2
+        y = (centroidOne.y + centroidTwo.y) / 2
+        return Centroid(x,y)
+
+    @staticmethod
+    def getIntermediateLocation(centroidOne: Centroid, centroidTwo: Centroid, radiusRatio):
+        radius = UtilitiesService.getCentroidDistance(centroidOne, centroidTwo) * radiusRatio
+        midPoint = UtilitiesService.getMidPoint(centroidOne, centroidTwo)
+        centerX = midPoint.x
+        centerY = midPoint.y
+        minX = centerX - radius
+        maxX = centerX + radius
+        minY = centerY - radius
+        maxY = centerY + radius
+
+        output = Centroid(0, 0)
+        while True:
+            output.x = random.uniform(minX, maxX)
+            output.y = random.uniform(minY, maxY)
+            if math.sqrt(pow(output.x - centerX, 2) + pow(output.y - centerY, 2)) <= radius:
+                return output
 
     @staticmethod
     def delayExecution(timeInterval):

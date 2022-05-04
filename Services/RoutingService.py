@@ -1,9 +1,4 @@
-import Configurations.Configuration
 from Services.LogService import LogService
-from Services.UtilitiesService import UtilitiesService
-from Services.GuiService import GuiService
-
-from Constants import NodeType
 
 class RoutingService:
 
@@ -70,7 +65,7 @@ class RoutingService:
 
     # Finds the next hop based on the current value of __inLocationProxyMode field
     def getNextHopInRoute(self, packet, nextHop = None):
-        srcNode = self.__nodeService.getNodeByID(packet.srcId)
+        srcNode = self.__nodeService.getNodeByID(packet.getSrcId())
         if (nextHop == None):
             return srcNode.getNextHop(packet, self.__inLocationProxyMode, self.__inInfMode)
         else:

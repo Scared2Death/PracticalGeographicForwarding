@@ -10,19 +10,40 @@ class Packet:
     __message = 'hello'
     __infMode = InfMode.NO_INF
     __intermediateLocation = None
-    # todo: NakPackage class
     __nak = False
 
-    def __init__(self, srcId, srcLocation, srcCentroid, destId, destLocation, message):
-        self.srcId = srcId
-        self.srcLocation = srcLocation
-        self.srcCentroid = srcCentroid
-        self.destId = destId
-        self.destLocation = destLocation
-        self.message = message
+    def __init__(self, srcId, srcLocation, srcCentroid, destId, destLocation, message,
+                 infMode = InfMode.NO_INF, intermediateLocation = None, nak = False):
+        self.__srcId = srcId
+        self.__srcLocation = srcLocation
+        self.__srcCentroid = srcCentroid
+        self.__destId = destId
+        self.__destLocation = destLocation
+        self.__message = message
+        self.__infMode = infMode
+        self.__intermediateLocation = intermediateLocation
+        self.__nak = nak
 
     def __repr__(self):
-        return 'Packet (srcId = {}, srcLocation = {}, srcCentroid = {}, destId = {}, destLocation = {}, message = {})'.format(self.srcId, self.srcLocation, self.srcCentroid, self.destId, self.destLocation, self.message)
+        return 'Packet (srcId = {}, srcLocation = {}, srcCentroid = {}, destId = {}, destLocation = {}, message = {}, intermediateLocation = {}, nak = {})'.format(self.__srcId, self.__srcLocation, self.__srcCentroid, self.__destId, self.__destLocation, self.__message, self.__intermediateLocation, self.__nak)
+
+    def getSrcId(self):
+        return self.__srcId
+
+    def getSrcLocation(self):
+        return self.__srcLocation
+
+    def getDestId(self):
+        return self.__destId
+
+    def getDestLocation(self):
+        return self.__destLocation
+
+    def getSrcCentroid(self):
+        return self.__srcCentroid
+
+    def getMessage(self):
+        return self.__message
 
     def setInfMode(self, infMode):
         self.__infMode = infMode
@@ -35,9 +56,6 @@ class Packet:
 
     def getIntermediateLocation(self):
         return self.__intermediateLocation
-
-    def getDestLocation(self):
-        return self.__destLocation
 
     def setNak(self, nak):
         self.__nak = nak

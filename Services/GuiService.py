@@ -3,11 +3,9 @@ from tkinter import *
 from Configurations import Configuration
 from Constants import NodeType
 
-from Models.Packet import Packet
-
 class GuiService:
 
-    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, turnIntermediateNodeForwardingOn, turnIntermediateNodeForwardingOff, toggleAutomaticSimulation):
+    def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, infRouting, turnIntermediateNodeForwardingOn, turnIntermediateNodeForwardingOff, toggleAutomaticSimulation):
 
         self.window = Tk()
 
@@ -28,6 +26,7 @@ class GuiService:
         self.window.bind(Configuration.MOVEMENT_KEY, move)
         self.window.bind(Configuration.BASIC_ROUTING_KEY, basicRouting)
         self.window.bind(Configuration.LOCATION_PROXY_ROUTING_KEY, locationProxyRouting)
+        self.window.bind(Configuration.INF_ROUTING_KEY, infRouting)
         self.window.bind(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_ON_KEY, turnIntermediateNodeForwardingOn)
         self.window.bind(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_OFF_KEY, turnIntermediateNodeForwardingOff)
         self.window.bind(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY, toggleAutomaticSimulation)

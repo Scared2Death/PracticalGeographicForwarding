@@ -1,5 +1,4 @@
 from Configurations import Configuration
-from Constants import InfMode
 
 from Models.Packet import Packet
 
@@ -49,7 +48,6 @@ def __incurAutomaticSimulation():
 
 def __move(x = None, y = None, event = None):
     global __nextHop
-    global __prevNextHop
     global __isSendingInProgress
     global __isNewSendingInitiatable
     global __routingResult
@@ -62,25 +60,22 @@ def __move(x = None, y = None, event = None):
         __routingResult = []
 
         if __nextHop is None:
-            __prevNextHop = __packet.srcId
+            __prevNextHop = __packet.getSrcId()
             __nextHop = __routing(__packet)
         else:
             __prevNextHop = __nextHop
             __nextHop = __routing(__packet, __nextHop)
 
-        if __nextHop is not None and __nextHop != 'NAK' and __packet.destId != __nextHop:
+        if __nextHop is not None and __nextHop != 'NAK' and __packet.getDestId() != __nextHop:
             __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
             # LogService.log('Next hop: {}'.format(__nextHop))
             __routingResult.append('Next hop: {}'.format(__nextHop))
             __routingResult.append(None)
-        # else:
-        #     if __nextHop == 'NAK':
-        #         __isSendingInProgress = False
-        #         __isNewSendingInitiatable = True
-        #         # WIP
-        #         # __initiateNakSending(__packet, __prevNextHop)
         else:
-            if __packet.destId != __nextHop:
+            if __nextHop == 'NAK':
+                __routingResult.append('Packet is returned to sender.')
+                # todo
+            elif __packet.getDestId() != __nextHop:
                 # LogService.log('Packet is dropped :(')
                 __routingResult.append('Packet is dropped :(')
                 __routingResult.append(False)
@@ -134,7 +129,7 @@ def __initiateBasicRoutingSending(event):
 
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
-    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+    __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
 
 def __initiateLocationProxyRoutingSending(event):
 
@@ -160,52 +155,68 @@ def __initiateLocationProxyRoutingSending(event):
 
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
-    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+    __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
 
 # WIP
 def __initiateInfRoutingSending(event):
 
-    if not checkNewSendingInitiatability():
-        return
-
+    # if not checkNewSendingInitiatability():
+    #     return
+    #
     packetSendingDetails = __askForPacketSendingDetails()
-
-    # UI WINDOW OR WHATEVER
-    if packetSendingDetails is None:
-        LogService.log("Wrongful inputs provided .")
-        global __isNewSendingInitiatable
-        __isNewSendingInitiatable = True
-        return
-
-    __packetLocations.clear()
-
-    global __isSendingInProgress
-    __isSendingInProgress = True
-
-    main.__routingService.setInInfMode(True)
-    # main.__nodeService.printRoutingTables()
-
-    global __packet
-    __packet = __createPacket(packetSendingDetails, True)
-    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
-
-# WIP
-def __initiateNakSending(packet, sourceId):
-
-    if not checkNewSendingInitiatability():
-        return
-
-    __packetLocations.clear()
-
-    global __isSendingInProgress
-    __isSendingInProgress = True
+    #
+    # # UI WINDOW OR WHATEVER
+    # if packetSendingDetails is None:
+    #     LogService.log("Wrongful inputs provided .")
+    #     global __isNewSendingInitiatable
+    #     __isNewSendingInitiatable = True
+    #     return
+    #
+    # __packetLocations.clear()
+    #
+    # global __isSendingInProgress
+    # __isSendingInProgress = True
 
     main.__routingService.setInInfMode(True)
     # main.__nodeService.printRoutingTables()
 
-    global __packet
-    __packet = __createNakPacket(packet, True, sourceId)
-    __packetLocations.append((__packet.srcId, __packet.srcCentroid))
+    # global __packet
+    # __packet = __createPacket(packetSendingDetails, True)
+    # __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+
+    packet = __createPacket(packetSendingDetails, True)
+    __doInfRouting(packet)
+
+def __doInfRouting(packet):
+    isNak = packet.isNak()
+    prevHop = packet.getSrcId()
+    nextHop = __routing(packet)
+    while nextHop != packet.getDestId() and nextHop is not None and nextHop != 'NAK':
+        prevHop = nextHop
+        nextHop = __routing(packet, nextHop)
+        # LogService.log('NextHop {}'.format(nextHop))
+
+    if nextHop == packet.getDestId():
+        if isNak:
+            LogService.log('Packet returned to source.')
+            srcNode = main.__nodeService.getNodeByID(nextHop)
+            repeat = srcNode.handleNakPacket()
+            if repeat:
+                __doInfRouting(srcNode.getPacket())
+            else:
+                LogService.log('Too many failed attempts.')
+        else:
+            LogService.log('Packet delivered.')
+    elif nextHop == 'NAK':
+        if isNak:
+            LogService.log('Cannot return NAK message')
+        else:
+            LogService.log('Return NAK to sender.')
+            nakSender = main.__nodeService.getNodeByID(prevHop)
+            nakPacket = nakSender.createNakPacket(packet)
+            __doInfRouting(nakPacket)
+    else:
+        LogService.log('Delivery failed')
 
 def __routing(packet, nextHop = None):
     if nextHop is None:
@@ -237,6 +248,7 @@ __ui = GuiService(
     __move,
     __initiateBasicRoutingSending,
     __initiateLocationProxyRoutingSending,
+    __initiateInfRoutingSending,
     __turnIntermediateNodeForwardingOn,
     __turnIntermediateNodeForwardingOff,
     __toggleAutomaticSimulation)
@@ -274,20 +286,11 @@ def __createPacket(packetSendingDetails, inInfMode):
 
     packet = Packet(src, srcLocation, srcCentroid, dest, destLocation, msg)
 
+    srcNode = main.__nodeService.getNodeByID(src)
+    srcNode.setPacket(packet)
     if inInfMode:
-        srcNode = main.__nodeService.getNodeByID(src)
-        srcNode.setInfDetailsOfPacket(packet)
-
-    return packet
-
-# WIP
-def __createNakPacket(packet, inInfMode, sourceId):
-    srcNode = main.__nodeService.getNodeByID(sourceId)
-    packet = Packet(sourceId, srcNode.getLocation(), srcNode.getCentroid(), packet.srcId, packet.srcLocation, packet.message)
-    packet.setNak(True)
-    if inInfMode:
-        packet.setInfMode(InfMode.TO_INF)
-        packet.setIntermediateLocation(srcNode.getLocation())
+        srcNode.setInfDetailsOfPacket()
+        srcNode.setAttempt(1)
 
     return packet
 
