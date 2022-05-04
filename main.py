@@ -28,6 +28,9 @@ def main(x = None, y = None, event = None):
     # initialization
     # reinitialization
 
+    # due to reinitialization
+    __reset()
+
     main.__nodeService = NodesService()
     main.__routingService = RoutingService(main.__nodeService, False)
     # main.__nodeService.printRoutingTables()
@@ -35,6 +38,25 @@ def main(x = None, y = None, event = None):
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText())
     __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
     __ui.loop()
+
+def __reset():
+    global __isNewSendingInitiatable
+    global __isSendingInProgress
+    global __packet
+    global __packetLocations
+    global __nextHop
+    global __routingResult
+    global __isRenderingINFNodes
+
+    __isNewSendingInitiatable = True
+    __isSendingInProgress = False
+
+    __packet = None
+    __packetLocations = []
+    __nextHop = None
+    __routingResult = None
+
+    __isRenderingINFNodes = False
 
 def __toggleAutomaticSimulation(event):
     global __isAutomaticSimulation

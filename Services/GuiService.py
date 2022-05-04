@@ -90,7 +90,8 @@ class GuiService:
                 font = Configuration.HELPER_TEXT_FONT,
                 # text = chr(node.getId())
                 # for testing purposes
-                text = node.getId()
+                text = node.getId(),
+                anchor = Configuration.TEXT_ANCHOR
             )
 
         # PACKETS
@@ -119,7 +120,8 @@ class GuiService:
             Configuration.HELPER_TEXT_Y_DIRECTION_DISPLACEMENT,
             fill = Configuration.HELPER_TEXT_COLOR,
             font = Configuration.HELPER_TEXT_FONT,
-            text = helperText
+            text = helperText,
+            anchor = Configuration.TEXT_ANCHOR
         )
 
         # ROUTING LOG TEXT
@@ -138,7 +140,8 @@ class GuiService:
                 Configuration.ROUTING_LOG_TEXT_Y_DIRECTION_DISPLACEMENT,
                 fill = textColor,
                 font = Configuration.ROUTING_LOG_TEXT_FONT,
-                text = routingResult[0]
+                text = routingResult[0],
+                anchor = Configuration.TEXT_ANCHOR
             )
 
     def __drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR, alpha = None):
