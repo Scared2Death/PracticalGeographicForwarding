@@ -15,7 +15,7 @@ class UtilitiesService:
     @staticmethod
     def generateNode():
 
-        centroid = UtilitiesService.__generateCentroid(Configuration.GUI_WINDOW_WIDTH, Configuration.GUI_WINDOW_HEIGHT)
+        centroid = UtilitiesService.__generateCentroid(Configuration.MAIN_WINDOW_WIDTH, Configuration.MAIN_WINDOW_HEIGHT)
         shapeRadius = UtilitiesService.__generateShapeRadius(Configuration.NODE_SHAPE_RADIUS, Configuration.NODE_SHAPE_RADIUS)
         broadcastRange = UtilitiesService.__generateBroadcastRange(Configuration.MIN_BROADCAST_RANGE, Configuration.MAX_BROADCAST_RANGE)
         nodeType = UtilitiesService.__getNodeType()

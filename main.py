@@ -1,5 +1,4 @@
 from Configurations import Configuration
-from tkinter import simpledialog
 
 from Models.Packet import Packet
 
@@ -7,6 +6,8 @@ from Services.GuiService import GuiService
 from Services.NodesService import NodesService
 from Services.RoutingService import RoutingService
 from Services.LogService import LogService
+
+from tkinter import simpledialog
 
 import traceback
 
@@ -91,7 +92,7 @@ def __move(x = None, y = None, event = None):
 
         if __nextHop is not None and __nextHop != 'NAK' and __packet.getDestId() != __nextHop:
             __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
-            # LogService.log('Next hop: {}'.format(__nextHop))
+            LogService.log('Next hop: {}'.format(__nextHop))
             __routingResult.append('Next hop: {}'.format(__nextHop))
             __routingResult.append(None)
         else:
@@ -99,12 +100,12 @@ def __move(x = None, y = None, event = None):
                 __routingResult.append('Packet is returned to sender.')
                 # todo
             elif __packet.getDestId() != __nextHop:
-                # LogService.log('Packet is dropped :(')
+                LogService.log('Packet is dropped :(')
                 __routingResult.append('Packet is dropped :(')
                 __routingResult.append(False)
             else:
                 __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
-                # LogService.log('Packet is delivered at node {} :)'.format(__nextHop))
+                LogService.log('Packet is delivered at node {} :)'.format(__nextHop))
                 __routingResult.append('Packet is delivered at node {} :)'.format(__nextHop))
                 __routingResult.append(True)
 
@@ -217,7 +218,7 @@ def __doInfRouting(packet):
     while nextHop != packet.getDestId() and nextHop is not None and nextHop != 'NAK':
         prevHop = nextHop
         nextHop = __routing(packet, nextHop)
-        # LogService.log('NextHop {}'.format(nextHop))
+        LogService.log('NextHop {}'.format(nextHop))
 
     if nextHop == packet.getDestId():
         if isNak:
@@ -265,8 +266,8 @@ def __turnIntermediateNodeForwardingOff(event):
     main()
 
 __ui = GuiService(
-    Configuration.GUI_WINDOW_WIDTH,
-    Configuration.GUI_WINDOW_HEIGHT,
+    Configuration.MAIN_WINDOW_WIDTH,
+    Configuration.MAIN_WINDOW_HEIGHT,
     main,
     __move,
     __initiateBasicRoutingSending,

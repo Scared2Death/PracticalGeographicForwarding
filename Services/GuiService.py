@@ -10,11 +10,12 @@ class GuiService:
         self.window = Tk()
 
         self.logWindow = Toplevel(self.window)
-        self.logWindow.geometry("800x600")
-        self.logWindow.title("Log")
-        self.logTextArea = Text(self.logWindow, height = 100, width = 800, font=("Courier", 10))
+        self.logWindow.geometry('{}{}{}'.format(Configuration.LOG_WINDOW_WIDTH, "x", Configuration.LOG_WINDOW_HEIGHT))
+        self.logWindow.title(Configuration.LOG_WINDOW_TITLE)
+        self.logTextArea = Text(self.logWindow, height = Configuration.LOG_TEXT_AREA_WIDTH, width = Configuration.LOG_TEXT_AREA_HEIGHT, font=(Configuration.LOG_TEXT_AREA_FONT, Configuration.LOG_TEXT_AREA_FONTSIZE))
         self.logTextArea.pack()
         self.logWindowToggle = True
+
         self.window.after(0, lambda: self.window.focus_force())
 
         screenWidth = self.window.winfo_screenwidth()
@@ -23,7 +24,7 @@ class GuiService:
         x = int((screenWidth / 2) - (width / 2))
         y = int((screenHeight / 2) - (height / 2))
 
-        self.window.title(Configuration.GUI_WINDOW_TITLE)
+        self.window.title(Configuration.MAIN_WINDOW_TITLE)
         self.window.geometry('{}{}{}{}{}{}{}'.format(width, "x", height, "+", x, "+", y))
         self.window.resizable(False, False)
 
@@ -56,7 +57,7 @@ class GuiService:
 
         self.canvas.delete("all")
 
-        with open('Network Logs.txt') as f:
+        with open(Configuration.LOG_FILE_NAME) as f:
             lines = f.readlines()
             f.close()
             self.logTextArea.insert(END, lines)
@@ -64,12 +65,12 @@ class GuiService:
 
         # SOME HELPER TEXT
         self.canvas.create_rectangle(
-            10,
-            400,
-            220,
-            590,
-            outline = "#aaa",
-            fill = "#ffffdd"
+            Configuration.HELPER_TEXT_RECTANGLE_X0,
+            Configuration.HELPER_TEXT_RECTANGLE_Y0,
+            Configuration.HELPER_TEXT_RECTANGLE_X1,
+            Configuration.HELPER_TEXT_RECTANGLE_Y1,
+            outline = Configuration.HELPER_TEXT_RECTANGLE_OUTLINE,
+            fill = Configuration.HELPER_TEXT_RECTANGLE_FILL
         )
         self.canvas.create_text(
             Configuration.HELPER_TEXT_X_DIRECTION_DISPLACEMENT,
@@ -77,7 +78,7 @@ class GuiService:
             fill = Configuration.HELPER_TEXT_COLOR,
             font = Configuration.HELPER_TEXT_FONT,
             text = helperText,
-            anchor = "sw"
+            anchor = Configuration.TEXT_ANCHOR
         )
 
         # NODES
@@ -172,7 +173,7 @@ class GuiService:
                 fill = textColor,
                 font = Configuration.ROUTING_LOG_TEXT_FONT,
                 text = routingResult[0],
-                anchor = 'sw'
+                anchor = Configuration.TEXT_ANCHOR
             )
 
     def __drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR, alpha = None):
