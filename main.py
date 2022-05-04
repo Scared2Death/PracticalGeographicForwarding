@@ -1,4 +1,5 @@
 from Configurations import Configuration
+from tkinter import simpledialog
 
 from Models.Packet import Packet
 
@@ -276,7 +277,11 @@ __ui = GuiService(
     __toggleAutomaticSimulation)
 
 def __askForPacketSendingDetails():
-    src = input('Source: ')
+    src = simpledialog.askstring(
+        "From",
+        "Enter source node ID",
+        parent = __ui.window
+    )
     # Source may or may not know its own location
     # srcCentroid => needed for visualization
 
@@ -286,7 +291,11 @@ def __askForPacketSendingDetails():
     else:
         return None
 
-    dest = input('Destination: ')
+    dest = simpledialog.askstring(
+        "To",
+        "Enter destination node ID",
+        parent = __ui.window
+    )
     # Destination location is always known, since we are using locations as addresses
 
     if int(dest) in main.__nodeService.getNodes():
@@ -294,7 +303,11 @@ def __askForPacketSendingDetails():
     else:
         return None
 
-    msg = input('Message: ')
+    msg = simpledialog.askstring(
+        "Message",
+        "Enter message to send",
+        parent = __ui.window
+    )
 
     return (int(src), srcLocation, srcCentroid, int(dest), destLocation, msg)
 
@@ -317,12 +330,13 @@ def __createPacket(packetSendingDetails, inInfMode):
     return packet
 
 def __getHelperText():
-    return "Restart: [{}] \n".format(Configuration.RESTART_KEY) + \
-           "Move: [{}] \n".format(Configuration.MOVEMENT_KEY) + \
-           "Basic routing: [{}] \n".format(Configuration.BASIC_ROUTING_KEY) + \
-           "Location proxy routing: [{}] \n".format(Configuration.LOCATION_PROXY_ROUTING_KEY) + \
-           "Turn intermediate node forwarding on: [{}]\n".format(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_ON_KEY) + \
-           "Toggle automatic simulation: [{}]".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY)
+    return "{}  Restart\n\n".format(Configuration.RESTART_KEY_DISPLAY) + \
+           "{}  Move\n\n".format(Configuration.MOVEMENT_KEY_DISPLAY) + \
+           "{}  Turn INF on\n\n".format(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_ON_KEY_DISPLAY) + \
+           "{}  Send (Basic)\n\n".format(Configuration.BASIC_ROUTING_KEY_DISPLAY) + \
+           "{}  Send (Location proxy)\n\n".format(Configuration.LOCATION_PROXY_ROUTING_KEY_DISPLAY) + \
+           "{}  Send (INF)\n\n".format(Configuration.INF_ROUTING_KEY_DISPLAY) + \
+           "{}  Toggle automatic".format(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY_DISPLAY)
 
 try:
     main()

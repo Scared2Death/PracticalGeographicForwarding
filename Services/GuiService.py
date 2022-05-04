@@ -1,13 +1,21 @@
 from tkinter import *
+import tkinter
 
 from Configurations import Configuration
 from Constants import NodeType
 
 class GuiService:
-
     def __init__(self, width, height, start, move, basicRouting, locationProxyRouting, infRouting, turnIntermediateNodeForwardingOn, turnIntermediateNodeForwardingOff, toggleAutomaticSimulation):
 
         self.window = Tk()
+
+        self.logWindow = Toplevel(self.window)
+        self.logWindow.geometry("800x600")
+        self.logWindow.title("Log")
+        self.logTextArea = Text(self.logWindow, height = 100, width = 800, font=("Courier", 10))
+        self.logTextArea.pack()
+        self.logWindowToggle = True
+        self.window.after(0, lambda: self.window.focus_force())
 
         screenWidth = self.window.winfo_screenwidth()
         screenHeight = self.window.winfo_screenheight()
@@ -22,6 +30,7 @@ class GuiService:
         self.canvas = Canvas(self.window)
         self.canvas.pack(fill = BOTH, expand = 1)
 
+        self.window.bind(Configuration.TOGGLE_LOGWINDOW_KEY, self.__toggleLogWindow)
         self.window.bind(Configuration.RESTART_KEY, start)
         self.window.bind(Configuration.MOVEMENT_KEY, move)
         self.window.bind(Configuration.BASIC_ROUTING_KEY, basicRouting)
@@ -31,12 +40,45 @@ class GuiService:
         self.window.bind(Configuration.TURN_INTERMEDIATE_NODE_FORWARDING_OFF_KEY, turnIntermediateNodeForwardingOff)
         self.window.bind(Configuration.TOGGLE_AUTOMATIC_SIMULATION_KEY, toggleAutomaticSimulation)
 
+    def __toggleLogWindow(self, event):
+        self.logWindowToggle = not self.logWindowToggle
+        if self.logWindowToggle:
+            self.logWindow.deiconify()
+            self.window.after(0, lambda: self.window.focus_force())
+        else:
+            self.logWindow.withdraw()
+            
+
     def loop(self):
         self.window.mainloop()
 
     def render(self, nodes, helperText : str, packetLocations : [] = None, isRenderingINFNodes = False, routingResult : [] = None):
 
         self.canvas.delete("all")
+
+        with open('Network Logs.txt') as f:
+            lines = f.readlines()
+            f.close()
+            self.logTextArea.insert(END, lines)
+            self.logTextArea.see(END)
+
+        # SOME HELPER TEXT
+        self.canvas.create_rectangle(
+            10,
+            400,
+            220,
+            590,
+            outline = "#aaa",
+            fill = "#ffffdd"
+        )
+        self.canvas.create_text(
+            Configuration.HELPER_TEXT_X_DIRECTION_DISPLACEMENT,
+            Configuration.HELPER_TEXT_Y_DIRECTION_DISPLACEMENT,
+            fill = Configuration.HELPER_TEXT_COLOR,
+            font = Configuration.HELPER_TEXT_FONT,
+            text = helperText,
+            anchor = "sw"
+        )
 
         # NODES
         for node in nodes:
@@ -90,8 +132,7 @@ class GuiService:
                 font = Configuration.HELPER_TEXT_FONT,
                 # text = chr(node.getId())
                 # for testing purposes
-                text = node.getId(),
-                anchor = Configuration.TEXT_ANCHOR
+                text = node.getId()
             )
 
         # PACKETS
@@ -114,16 +155,6 @@ class GuiService:
                         packetLocations[index + 1][1].y
                     )
 
-        # SOME HELPER TEXT
-        self.canvas.create_text(
-            Configuration.HELPER_TEXT_X_DIRECTION_DISPLACEMENT,
-            Configuration.HELPER_TEXT_Y_DIRECTION_DISPLACEMENT,
-            fill = Configuration.HELPER_TEXT_COLOR,
-            font = Configuration.HELPER_TEXT_FONT,
-            text = helperText,
-            anchor = Configuration.TEXT_ANCHOR
-        )
-
         # ROUTING LOG TEXT
         if routingResult is not None:
 
@@ -141,7 +172,7 @@ class GuiService:
                 fill = textColor,
                 font = Configuration.ROUTING_LOG_TEXT_FONT,
                 text = routingResult[0],
-                anchor = Configuration.TEXT_ANCHOR
+                anchor = 'sw'
             )
 
     def __drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR, alpha = None):
