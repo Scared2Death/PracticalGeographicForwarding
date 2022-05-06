@@ -71,6 +71,10 @@ def __incurAutomaticSimulation():
     __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
 
 def __move(x = None, y = None, event = None):
+    global __isRenderingINFNodes
+    if __isRenderingINFNodes:
+        return
+
     global __nextHop
     global __isSendingInProgress
     global __isNewSendingInitiatable
@@ -257,8 +261,6 @@ def __turnIntermediateNodeForwardingOn(event):
     __isRenderingINFNodes = True
 
     __ui.render(infNodes, __getHelperText(), __packetLocations, __isRenderingINFNodes)
-
-    # other todos ...
 
 def __turnIntermediateNodeForwardingOff(event):
     global __isRenderingINFNodes
