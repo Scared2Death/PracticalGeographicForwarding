@@ -191,9 +191,9 @@ class Node:
         else:
             return False
 
-# When a node originates a packet, it checks to see if there is an entry for the packet’s destination in the INF table.
-# If so, the packet’s INF mode is set to TO-INF, and the intermediate location is copied into the packet header from
-# the INF table. If there is no entry in the INF table, the INF mode is set to NO-INF.
+    # When a node originates a packet, it checks to see if there is an entry for the packet’s destination in the INF table.
+    # If so, the packet’s INF mode is set to TO-INF, and the intermediate location is copied into the packet header from
+    # the INF table. If there is no entry in the INF table, the INF mode is set to NO-INF.
     def setInfDetailsOfPacket(self):
         LogService.log('Set inf details')
         if self.__packet.getDestId() in self.__infTable:
