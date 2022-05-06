@@ -48,12 +48,11 @@ class GuiService:
             self.window.after(0, lambda: self.window.focus_force())
         else:
             self.logWindow.withdraw()
-            
 
     def loop(self):
         self.window.mainloop()
 
-    def render(self, nodes, helperText : str, packetLocations : [] = None, isRenderingINFNodes = False, routingResult : [] = None):
+    def render(self, nodes, helperText : str, packetLocations : [] = None, isRenderingINFNodes = False, routingResult : [] = None, intermediateLocation = None):
 
         self.canvas.delete("all")
 
@@ -137,6 +136,16 @@ class GuiService:
                 # text = chr(node.getId())
                 # for testing purposes
                 text = node.getId()
+            )
+
+        # INTERMEDIATE LOCATION
+        # TEMP
+        if intermediateLocation is not None:
+            self.__drawCircle(
+                intermediateLocation.x,
+                intermediateLocation.y,
+                25,
+                f = "red"
             )
 
         # PACKETS

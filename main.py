@@ -25,6 +25,7 @@ __routingResult : [] = None
 __isRenderingINFNodes = False
 
 __isRepeatedRouting = False
+__intermediateLocation = None
 
 __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
@@ -33,7 +34,7 @@ def main(x = None, y = None, event = None):
     # reinitialization
 
     # due to reinitialization
-    __reset()
+    __resetToDefaultValues()
 
     main.__nodeService = NodesService()
     main.__routingService = RoutingService(main.__nodeService, False)
@@ -43,7 +44,7 @@ def main(x = None, y = None, event = None):
     __ui.window.after(Configuration.DELAY_INTERVAL, __incurAutomaticSimulation)
     __ui.loop()
 
-def __reset():
+def __resetToDefaultValues():
     global __isNewSendingInitiatable
     global __isSendingInProgress
     global __packet
@@ -64,6 +65,18 @@ def __reset():
     __isRenderingINFNodes = False
 
     __isRepeatedRouting = False
+    __intermediateLocation = None
+
+def __indicateRoutingReset():
+    global __isNewSendingInitiatable
+    global __isSendingInProgress
+    global __nextHop
+
+    __isNewSendingInitiatable = True
+    __isSendingInProgress = False
+
+    __nextHop = None
+
 
 def __toggleAutomaticSimulation(event):
     global __isAutomaticSimulation
@@ -77,9 +90,6 @@ def __incurAutomaticSimulation():
 
 def __move(x = None, y = None, event = None):
     global __isRenderingINFNodes
-    if __isRenderingINFNodes:
-        return
-
     global __nextHop
     global __isSendingInProgress
     global __isNewSendingInitiatable
@@ -87,14 +97,17 @@ def __move(x = None, y = None, event = None):
     global __packet
     global __packetLocations
     global __isRepeatedRouting
+    global __intermediateLocation
 
-    main.__nodeService.incurNodeMovements()
+    if not __isRenderingINFNodes:
+        main.__nodeService.incurNodeMovements()
+
     main.__routingService.updateRoutingTables()
 
     if __isSendingInProgress:
 
         if __isRepeatedRouting:
-            index = __packetLocations.count - 1
+            index = len(__packetLocations) - 1
             __packetLocations = __packetLocations[index:]
             __isRepeatedRouting = False
 
@@ -124,7 +137,7 @@ def __move(x = None, y = None, event = None):
                     __routingResult.append('{} {} :)'.format(msg, __nextHop))
                     __routingResult.append(True)
 
-                __reset()
+                __indicateRoutingReset()
         else:
             if __nextHop is None:
                 __prevNextHop = __packet.getSrcId()
@@ -140,10 +153,11 @@ def __move(x = None, y = None, event = None):
                 __routingResult.append(None)
             else:
                 if __packet.getDestId() == __nextHop:
-                    if __packet.isNak:
+                    if __packet.isNak():
                         msg = "Packet returned to source."
                         LogService.log(msg)
                         __routingResult.append('{} {} :)'.format(msg, __nextHop))
+                        __routingResult.append(None)
                         __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
 
                         srcNode = main.__nodeService.getNodeByID(__nextHop)
@@ -156,13 +170,15 @@ def __move(x = None, y = None, event = None):
                             __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
 
                             __nextHop = None
+
+                            __intermediateLocation = __packet.getIntermediateLocation()
                         else:
                             msg = "Too many failed attempts."
                             LogService.log(msg)
                             __routingResult.append('{}'.format(msg))
                             __routingResult.append(False)
 
-                            __reset()
+                            __indicateRoutingReset()
                     else:
                         __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
                         msg = "Packet is delivered at node"
@@ -170,15 +186,15 @@ def __move(x = None, y = None, event = None):
                         __routingResult.append('{} {} :)'.format(msg, __nextHop))
                         __routingResult.append(True)
 
-                        __reset()
+                        __indicateRoutingReset()
                 elif __nextHop == 'NAK':
-                    if __packet.isNak:
+                    if __packet.isNak():
                         msg = 'Cannot return NAK message'
                         LogService.log(msg)
                         __routingResult.append('{}'.format(msg))
                         __routingResult.append(False)
 
-                        __reset()
+                        __indicateRoutingReset()
                     else:
                         msg = 'Returning NAK to sender.'
                         LogService.log(msg)
@@ -199,13 +215,13 @@ def __move(x = None, y = None, event = None):
                     __routingResult.append(msg)
                     __routingResult.append(False)
 
-                    __reset()
+                    __indicateRoutingReset()
     else:
-        if __packetLocations.count != 0:
+        if len(__packetLocations) != 0:
             __packetLocations.clear()
         __routingResult = None
 
-    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations, routingResult = __routingResult)
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations, routingResult = __routingResult, intermediateLocation = __intermediateLocation)
 
     # main.__nodeService.printRoutingTables()
 
