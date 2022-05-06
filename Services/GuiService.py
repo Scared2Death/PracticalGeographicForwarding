@@ -75,10 +75,10 @@ class GuiService:
 
         bbox = self.canvas.bbox(id)
         rect = self.canvas.create_rectangle(
-            bbox - 10,
-            bbox - 10,
-            bbox + 10,
-            bbox + 10,
+            bbox[0] - 10,
+            bbox[1] - 10,
+            bbox[2] + 10,
+            bbox[3] + 10,
             fill = Configuration.HELPER_TEXT_RECTANGLE_FILL,
             outline = Configuration.HELPER_TEXT_RECTANGLE_OUTLINE,
         )
