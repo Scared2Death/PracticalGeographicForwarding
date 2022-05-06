@@ -64,15 +64,7 @@ class GuiService:
             self.logTextArea.see(END)
 
         # SOME HELPER TEXT
-        self.canvas.create_rectangle(
-            Configuration.HELPER_TEXT_RECTANGLE_X0,
-            Configuration.HELPER_TEXT_RECTANGLE_Y0,
-            Configuration.HELPER_TEXT_RECTANGLE_X1,
-            Configuration.HELPER_TEXT_RECTANGLE_Y1,
-            outline = Configuration.HELPER_TEXT_RECTANGLE_OUTLINE,
-            fill = Configuration.HELPER_TEXT_RECTANGLE_FILL
-        )
-        self.canvas.create_text(
+        id = self.canvas.create_text(
             Configuration.HELPER_TEXT_X_DIRECTION_DISPLACEMENT,
             Configuration.HELPER_TEXT_Y_DIRECTION_DISPLACEMENT,
             fill = Configuration.HELPER_TEXT_COLOR,
@@ -80,6 +72,17 @@ class GuiService:
             text = helperText,
             anchor = Configuration.TEXT_ANCHOR
         )
+
+        bbox = self.canvas.bbox(id)
+        rect = self.canvas.create_rectangle(
+            bbox - 10,
+            bbox - 10,
+            bbox + 10,
+            bbox + 10,
+            fill = Configuration.HELPER_TEXT_RECTANGLE_FILL,
+            outline = Configuration.HELPER_TEXT_RECTANGLE_OUTLINE,
+        )
+        self.canvas.tag_lower(rect, id)
 
         # NODES
         for node in nodes:
