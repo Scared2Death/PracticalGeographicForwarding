@@ -172,10 +172,13 @@ class UtilitiesService:
                 return output
 
     @staticmethod
-    def calculateInfExtras(centroidOne: Centroid, centroidTwo: Centroid, radiusRatio):
+    def calculateInfExtras(centroidOne: Centroid, centroidTwo: Centroid, radiusRatio, intermediateLocation, showCircleAndLine):
         radius = UtilitiesService.getCentroidDistance(centroidOne, centroidTwo) * radiusRatio
         midPoint = UtilitiesService.getMidPoint(centroidOne, centroidTwo)
-        return {'circle': {'radius': radius, 'center': midPoint}, 'line': {'a': centroidOne, 'b': centroidTwo}}
+        return {'showCircleAndLine': showCircleAndLine,
+                'circle': {'radius': radius, 'center': midPoint},
+                'line': {'a': centroidOne, 'b': centroidTwo},
+                'location': intermediateLocation}
 
     @staticmethod
     def delayExecution(timeInterval):

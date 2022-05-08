@@ -25,10 +25,10 @@ __routingResult : [] = None
 __isRenderingINFNodes = False
 
 __isRepeatedRouting = False
-__intermediateLocation = None
 __infExtrasData = None
 __infExtrasForRendering = None
 __initiateRouting = False
+__isNak = False
 
 __isAutomaticSimulation = Configuration.IS_AUTOMATIC_SIMULATION_ENABLED_BY_DEFAULT
 
@@ -51,10 +51,10 @@ def __resetToDefaultValues():
     global __routingResult
     global __isRenderingINFNodes
     global __isRepeatedRouting
-    global __intermediateLocation
     global __infExtrasData
     global __infExtrasForRendering
     global __initiateRouting
+    global __isNak
 
     __isNewSendingInitiatable = True
     __isSendingInProgress = False
@@ -67,29 +67,22 @@ def __resetToDefaultValues():
     __isRenderingINFNodes = False
 
     __isRepeatedRouting = False
-    __intermediateLocation = None
     __infExtrasData = None
     __infExtrasForRendering = None
     __initiateRouting = False
 
+    __isNak = False
     LogService.clearFileContents()
 
 def __indicateRoutingReset():
     global __isNewSendingInitiatable
     global __isSendingInProgress
     global __nextHop
-    global __intermediateLocation
-    global __infExtrasData
-    global __infExtrasForRendering
 
     __isNewSendingInitiatable = True
     __isSendingInProgress = False
 
     __nextHop = None
-    __intermediateLocation = None
-    __infExtrasData = None
-    __infExtrasForRendering = None
-
 
 def __toggleAutomaticSimulation(event):
     global __isAutomaticSimulation
@@ -110,10 +103,10 @@ def __move(x = None, y = None, event = None):
     global __packet
     global __packetLocations
     global __isRepeatedRouting
-    global __intermediateLocation
     global __infExtrasForRendering
     global __infExtrasData
     global __initiateRouting
+    global __isNak
 
     if not __isRenderingINFNodes:
         main.__nodeService.incurNodeMovements()
@@ -122,15 +115,18 @@ def __move(x = None, y = None, event = None):
 
     if __isSendingInProgress:
 
+        __routingResult = []
+
         if __isRepeatedRouting:
-            __intermediateLocation = __packet.getIntermediateLocation()
             __infExtrasForRendering = __infExtrasData
             index = len(__packetLocations) - 1
             __packetLocations = __packetLocations[index:]
             __isRepeatedRouting = False
+            __isNak = __packet.isNak()
+            __routingResult.append('Node {} starts routing'.format(__packet.getSrcId()))
+            __routingResult.append(None)
 
         else:
-            __routingResult = []
 
             if not __isRenderingINFNodes and not main.__routingService.isInInfMode():
                 if __nextHop is None:
@@ -173,15 +169,16 @@ def __move(x = None, y = None, event = None):
                     if __packet.getDestId() == __nextHop:
                         if __packet.isNak():
                             LogService.log('::::::::RETURNING PACKET FROM {} TO {} COMPLETED::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
-                            msg = "Packet returned to source"
-                            __routingResult.append('{} {} :)'.format(msg, __nextHop))
-                            __routingResult.append(None)
+
                             __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
 
                             srcNode = main.__nodeService.getNodeByID(__nextHop)
                             repeat = srcNode.handleNakPacket()
 
                             if repeat:
+                                msg = "Packet returned to source"
+                                __routingResult.append('{} {}'.format(msg, __nextHop))
+                                __routingResult.append(None)
                                 __isRepeatedRouting = True
                                 __initiateRouting = True
 
@@ -192,13 +189,12 @@ def __move(x = None, y = None, event = None):
 
                                 __nextHop = None
 
-                                __infExtrasData = srcNode.getInfExtras()
+                                __infExtrasData = srcNode.getInfExtras(__packet, True)
                                 __infExtrasForRendering = None
-                                __intermediateLocation = None
 
                             else:
-                                msg = "Too many failed attempts."
-                                LogService.log('::::::::ROUTING FROM {} TO {} FAILED DUE TO TOO MANY ATTEMPTS::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
+                                msg = "Nak pocket cannot be handled: too many attempts or no location info"
+                                LogService.log('::::::::ROUTING FROM {} TO {} FAILED (TOO MANY ATTEMPTS OR NO LOCATION INFO)::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
                                 __routingResult.append('{}'.format(msg))
                                 __routingResult.append(False)
 
@@ -232,9 +228,8 @@ def __move(x = None, y = None, event = None):
                             __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
 
                             __nextHop = None
-                            __infExtrasData = None
+                            __infExtrasData = nakSender.getInfExtras(__packet, False)
                             __infExtrasForRendering = None
-                            __intermediateLocation = None
                             LogService.log('::::::::{} RETURNING NAK TO {}::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
 
                     else:
@@ -247,18 +242,20 @@ def __move(x = None, y = None, event = None):
     else:
         if len(__packetLocations) != 0:
             __packetLocations.clear()
+            __infExtrasData = None
+            __infExtrasForRendering = None
         __routingResult = None
 
     __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations,
-                routingResult = __routingResult, intermediateLocation = __intermediateLocation,
-                infExtrasForRendering = __infExtrasForRendering)
+                routingResult = __routingResult,
+                infExtrasForRendering = __infExtrasForRendering, isNak = __isNak)
 
     LogService.debug('::::::::ROUTING TABLES::::::::\n{}\n:::::::::::::::::::::::::'.format(main.__nodeService.printRoutingTables()))
 
 def checkNewSendingInitiatability():
     global __isNewSendingInitiatable
     if not __isNewSendingInitiatable:
-        LogService.log("A new sending is not initiatable . A current sending process is being carried out .")
+        LogService.log("A new sending is not initiatable. A current sending process is being carried out.")
         return False
     else:
         __isNewSendingInitiatable = False
@@ -273,7 +270,7 @@ def __initiateBasicRoutingSending(event):
 
     # UI WINDOW OR WHATEVER
     if packetSendingDetails is None:
-        LogService.log("Wrongful inputs provided .")
+        LogService.log("Wrongful inputs provided.")
         global __isNewSendingInitiatable
         __isNewSendingInitiatable = True
         return
@@ -284,15 +281,23 @@ def __initiateBasicRoutingSending(event):
     __isSendingInProgress = True
 
     main.__routingService.setInLocationProxyMode(False)
-    # main.__nodeService.printRoutingTables()
 
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
     __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
 
+    global __routingResult
+    __routingResult = []
+    __routingResult.append('Node {} starts routing'.format(__packet.getSrcId()))
+    __routingResult.append(None)
+
+    global __isNak
+    __isNak = __packet.isNak()
+
     LogService.log('::::::::{} SENDING TO {} IN BASIC MODE::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
 
-    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations)
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations,
+                routingResult = __routingResult)
 
 def __initiateLocationProxyRoutingSending(event):
 
@@ -303,7 +308,7 @@ def __initiateLocationProxyRoutingSending(event):
 
     # UI WINDOW OR WHATEVER
     if packetSendingDetails is None:
-        LogService.log("Wrongful inputs provided .")
+        LogService.log("Wrongful inputs provided.")
         global __isNewSendingInitiatable
         __isNewSendingInitiatable = True
         return
@@ -319,8 +324,18 @@ def __initiateLocationProxyRoutingSending(event):
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
     __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+
+    global __routingResult
+    __routingResult = []
+    __routingResult.append('Node {} starts routing'.format(__packet.getSrcId()))
+    __routingResult.append(None)
+
+    global __isNak
+    __isNak = __packet.isNak()
+
     LogService.log('::::::::{} SENDING TO {} IN LOCATION PROXY MODE::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
-    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations)
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations,
+                routingResult = __routingResult)
 
 # WIP
 def __initiateInfRoutingSending(event):
@@ -331,7 +346,7 @@ def __initiateInfRoutingSending(event):
     packetSendingDetails = __askForPacketSendingDetails()
     # UI WINDOW OR WHATEVER
     if packetSendingDetails is None:
-         LogService.log("Wrongful inputs provided .")
+         LogService.log("Wrongful inputs provided.")
          global __isNewSendingInitiatable
          __isNewSendingInitiatable = True
          return
@@ -351,8 +366,18 @@ def __initiateInfRoutingSending(event):
     global __packet
     __packet = __createPacket(packetSendingDetails, True)
     __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+
+    global __routingResult
+    __routingResult = []
+    __routingResult.append('Node {} starts routing'.format(__packet.getSrcId()))
+    __routingResult.append(None)
+
+    global __isNak
+    __isNak = __packet.isNak()
+
     LogService.log('::::::::{} SENDING TO {} IN INF MODE::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
-    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations)
+    __ui.render(main.__nodeService.getNodes().values(), __getHelperText(), __packetLocations,
+                routingResult = __routingResult)
 
 def __routing(packet, nextHop = None):
     if nextHop is None:

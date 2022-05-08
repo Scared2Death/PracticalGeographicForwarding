@@ -24,6 +24,8 @@ class RoutingService:
         return self.__inLocationProxyMode
 
     def setInInfMode(self, inInfMode):
+        for node in self.__nodeService.getNodes().values():
+            node.resetInfTable()
         self.__inInfMode = inInfMode
 
     def isInInfMode(self):

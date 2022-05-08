@@ -3,6 +3,7 @@ from math import inf
 import Services.UtilitiesService as utilitiesService
 
 from Constants import NodeType, InfMode
+from Models.Centroid import Centroid
 from Models.Packet import Packet
 from Services.LogService import LogService
 from Configurations import Configuration
@@ -122,6 +123,9 @@ class Node:
         self.__proxyId = None
         self.__radius = 0
 
+    def resetInfTable(self):
+        self.__infTable = {}
+
     # Returns true if routing table is updated, false otherwise
     def processRoutingTableUpdate(self, message, withLocationProxy):
         updated = False
@@ -214,9 +218,17 @@ class Node:
         else:
             return False
 
-    def getInfExtras(self):
-        radiusRatio = 1/4 if self.__attempt < 5 else 1/2
-        return utilitiesService.UtilitiesService.calculateInfExtras(self.getLocation(), self.__packet.getDestLocation(), radiusRatio)
+    # packet must be passed here because NAK packet is not saved by node
+    def getInfExtras(self, packet, showCircleAndLine):
+        if packet.getInfMode() == InfMode.TO_INF:
+            radiusRatio = 1/4 if self.__attempt < 5 else 1/2
+            locationA = Centroid(self.getLocation().x, self.getLocation().y)
+            locationB = Centroid(packet.getDestLocation().x, packet.getDestLocation().y)
+            extras = utilitiesService.UtilitiesService.calculateInfExtras(locationA,
+                                                                          locationB, radiusRatio,
+                                                                          packet.getIntermediateLocation(), showCircleAndLine)
+            return extras
+        return None
 
     def createNakPacket(self, packet):
         nakPacket = Packet(self.__nodeId, self.getLocation(), self.getCentroid(), packet.getSrcId(), packet.getSrcLocation(),
