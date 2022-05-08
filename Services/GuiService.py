@@ -1,5 +1,4 @@
 from tkinter import *
-import tkinter
 
 from Configurations import Configuration
 from Constants import NodeType
@@ -52,14 +51,17 @@ class GuiService:
     def loop(self):
         self.window.mainloop()
 
-    def render(self, nodes, helperText : str, packetLocations : [] = None, isRenderingINFNodes = False, routingResult : [] = None, intermediateLocation = None):
+    def render(self, nodes, helperText : str, packetLocations : [] = None, isRenderingINFNodes = False, routingResult : [] = None, intermediateLocation = None, infExtrasForRendering = None):
 
         self.canvas.delete("all")
 
+        self.logTextArea.delete('1.0', END)
         with open(Configuration.LOG_FILE_NAME) as f:
             lines = f.readlines()
             f.close()
-            self.logTextArea.insert(END, lines)
+            lines = [x.strip() for x in lines]
+            for i in range(len(lines)):
+                self.logTextArea.insert(END, '{}\n'.format(lines[i]))
             self.logTextArea.see(END)
 
         # SOME HELPER TEXT
@@ -144,29 +146,59 @@ class GuiService:
             self.__drawCircle(
                 intermediateLocation.x,
                 intermediateLocation.y,
-                25,
-                f = "red"
+                12,
+                f = Configuration.INTERMEDIATE_LOCATION_COLOUR,
+                c = Configuration.INTERMEDIATE_LOCATION_COLOUR
+            )
+
+        # INTERMEDIATE AREA
+        # TEMP
+        if infExtrasForRendering is not None:
+            self.canvas.create_line(
+                infExtrasForRendering['line']['a'].x,
+                infExtrasForRendering['line']['a'].y,
+                infExtrasForRendering['line']['b'].x,
+                infExtrasForRendering['line']['b'].y,
+                dash = (4,4),
+                fill = Configuration.INF_EXTRAS_COLOUR
+            )
+
+            self.__drawCircle(
+                infExtrasForRendering['circle']['center'].x,
+                infExtrasForRendering['circle']['center'].y,
+                8,
+                f = Configuration.INF_EXTRAS_COLOUR,
+                c = Configuration.INF_EXTRAS_COLOUR
+            )
+
+            self.__drawCircle(
+                infExtrasForRendering['circle']['center'].x,
+                infExtrasForRendering['circle']['center'].y,
+                infExtrasForRendering['circle']['radius'],
+                c = Configuration.INF_EXTRAS_COLOUR
             )
 
         # PACKETS
-        if packetLocations is not None and len(packetLocations) >= 2:
+        if packetLocations is not None and len(packetLocations) >= 1:
 
+            last = len(packetLocations) - 1
             # PACKET SOURCE LOCATION
             self.__drawCircle(
-                packetLocations[0][1].x,
-                packetLocations[0][1].y,
-                Configuration.PACKET_SHAPE_RADIUS,
-                Configuration.PACKET_OUTLINE_COLOR
+                packetLocations[last][1].x,
+                packetLocations[last][1].y,
+                Configuration.NODE_SHAPE_RADIUS,
+                Configuration.PACKET_OUTLINE_COLOR,
+                width = Configuration.PACKET_OUTLINE_WIDTH
             )
-
-            for index, packetLocation in enumerate(packetLocations):
-                if index != len(packetLocations) - 1:
-                    self.canvas.create_line(
-                        packetLocations[index][1].x,
-                        packetLocations[index][1].y,
-                        packetLocations[index + 1][1].x,
-                        packetLocations[index + 1][1].y
-                    )
+            if len(packetLocations) >= 2:
+                for index, packetLocation in enumerate(packetLocations):
+                    if index != len(packetLocations) - 1:
+                        self.canvas.create_line(
+                            packetLocations[index][1].x,
+                            packetLocations[index][1].y,
+                            packetLocations[index + 1][1].x,
+                            packetLocations[index + 1][1].y
+                        )
 
         # ROUTING LOG TEXT
         if routingResult is not None:
@@ -188,12 +220,13 @@ class GuiService:
                 anchor = Configuration.TEXT_ANCHOR
             )
 
-    def __drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR, alpha = None):
+    def __drawCircle(self, x, y, r, c = Configuration.NODE_OUTLINE_DEFAULT_COLOR, f = Configuration.NODE_FILL_DEFAULT_COLOR, width = 1):
         return self.canvas.create_oval(
             x - r,
             y - r,
             x + r,
             y + r,
             fill = f,
-            outline = c
+            outline = c,
+            width = width
         )

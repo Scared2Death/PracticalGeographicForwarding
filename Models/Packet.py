@@ -12,14 +12,13 @@ class Packet:
     __intermediateLocation = None
     __nak = False
 
-    def __init__(self, srcId, srcLocation, srcCentroid, destId, destLocation, message,
+    def __init__(self, srcId, srcLocation, srcCentroid, destId, destLocation,
                  infMode = InfMode.NO_INF, intermediateLocation = None, nak = False):
         self.__srcId = srcId
         self.__srcLocation = srcLocation
         self.__srcCentroid = srcCentroid
         self.__destId = destId
         self.__destLocation = destLocation
-        self.__message = message
         self.__infMode = infMode
         self.__intermediateLocation = intermediateLocation
         self.__nak = nak

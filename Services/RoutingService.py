@@ -42,11 +42,11 @@ class RoutingService:
         LogService.log('Full dump update on all nodes is done')
 
     def advertiseRoutingTable(self, advertisedNode):
-        LogService.log('Advertising table of {}'.format(advertisedNode.getId()))
+        LogService.debug('Advertising table of {}'.format(advertisedNode.getId()))
         queue = [advertisedNode]
         while queue:
             node = queue.pop(0)
-            LogService.log('\t\tNode popped from queue: {}'.format(node.getId()))
+            LogService.debug('\tNode popped from queue: {}'.format(node.getId()))
             neighbors = self.__nodeService.getNeighbors(node)
             node.updateNeighbors(neighbors)
             node.incrementSeqNum()
@@ -56,12 +56,12 @@ class RoutingService:
                       'table': node.getRoutingTable()}
             for neighbor in neighbors.values():
                 updated = neighbor.processRoutingTableUpdate(update, self.__inLocationProxyMode)
-                LogService.log('\t\t\tNeighbor {} of {} updated: {}'.format(neighbor.getId(), node.getId(), updated))
+                LogService.debug('\t\tNeighbor {} of {} updated: {}'.format(neighbor.getId(), node.getId(), updated))
                 if updated:
                     queue.append(neighbor)
-            LogService.log('\t\tUpdated queue: {}'.format(queue))
-        LogService.log('Routing Tables after advertisement of {}'.format(advertisedNode.getId()))
-        # self.__nodeService.printRoutingTables()
+            LogService.debug('\tUpdated queue: {}'.format(list(map(lambda n: n.getId(), queue))))
+        LogService.debug('Routing Tables after advertisement of {}'.format(advertisedNode.getId()))
+        LogService.debug(self.__nodeService.printRoutingTables())
 
     # Finds the next hop based on the current value of __inLocationProxyMode field
     def getNextHopInRoute(self, packet, nextHop = None):

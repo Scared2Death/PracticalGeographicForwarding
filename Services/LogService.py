@@ -1,4 +1,6 @@
 import string
+from datetime import datetime
+from os import path
 
 import Configurations.Configuration
 
@@ -6,12 +8,26 @@ class LogService:
 
     @staticmethod
     def log(message: string):
-
+        content = '{}\t{}'.format(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), message)
         if (Configurations.Configuration.LOG_TO_CONSOLE):
-            LogService.__logToConsole(message)
+            LogService.__logToConsole(content)
 
         if (Configurations.Configuration.LOG_TO_FILE):
-            LogService.__logToFile(message)
+            LogService.__logToFile(content)
+
+    @staticmethod
+    def debug(message: string):
+        if (Configurations.Configuration.DEBUG):
+            LogService.log(message)
+
+    @staticmethod
+    def clearFileContents():
+        fileName = Configurations.Configuration.LOG_FILE_NAME
+        if path.exists(fileName):
+            file = open(fileName, 'r+')
+            file.truncate(0)
+        else:
+            open(fileName, 'w').close()
 
     @staticmethod
     def __logToConsole(message: string):
