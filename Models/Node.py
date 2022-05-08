@@ -85,6 +85,9 @@ class Node:
     def setAttempt(self, attempt):
         self.__attempt = attempt
 
+    def getProxy(self):
+        return self.__proxy
+
     def incrementSeqNum(self):
         # Sequence numbers defined by the originating Mobile Hosts are defined to be even numbers, and sequence numbers generated to indicate (inf) metrics are odd numbers.
         self.__seqNum += 2

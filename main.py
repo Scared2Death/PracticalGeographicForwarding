@@ -135,7 +135,8 @@ def __move(x = None, y = None, event = None):
                     __nextHop = __routing(__packet, __nextHop)
 
                 if __nextHop is not None and __packet.getDestId() != __nextHop:
-                    __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                    __packetLocations.append([__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid(),
+                                              main.__nodeService.getNodeByID(__nextHop)])
                     LogService.log('Next hop: {}'.format(__nextHop))
                     __routingResult.append('Next hop: {}'.format(__nextHop))
                     __routingResult.append(None)
@@ -145,7 +146,8 @@ def __move(x = None, y = None, event = None):
                         __routingResult.append(False)
                         LogService.log('::::::::ROUTING FROM {} TO {} FAILED::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
                     else:
-                        __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                        __packetLocations.append([__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid(),
+                                                  main.__nodeService.getNodeByID(__nextHop)])
 
                         msg = "Packet is delivered at node"
                         __routingResult.append('{} {} :)'.format(msg, __nextHop))
@@ -161,7 +163,8 @@ def __move(x = None, y = None, event = None):
                     __nextHop = __routing(__packet, __nextHop)
 
                 if __nextHop != __packet.getDestId() and __nextHop is not None and __nextHop != 'NAK':
-                    __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                    __packetLocations.append([__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid(),
+                                              main.__nodeService.getNodeByID(__nextHop)])
                     LogService.log('Next hop: {}'.format(__nextHop))
                     __routingResult.append('Next hop: {}'.format(__nextHop))
                     __routingResult.append(None)
@@ -170,7 +173,9 @@ def __move(x = None, y = None, event = None):
                         if __packet.isNak():
                             LogService.log('::::::::RETURNING PACKET FROM {} TO {} COMPLETED::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
 
-                            __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                            __packetLocations.append(
+                                [__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid(),
+                                 main.__nodeService.getNodeByID(__nextHop)])
 
                             srcNode = main.__nodeService.getNodeByID(__nextHop)
                             repeat = srcNode.handleNakPacket()
@@ -183,7 +188,9 @@ def __move(x = None, y = None, event = None):
                                 __initiateRouting = True
 
                                 __packet = srcNode.getPacket()
-                                __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+                                __packetLocations.append(
+                                    [__packet.getSrcId(), __packet.getSrcCentroid(),
+                                     main.__nodeService.getNodeByID(__packet.getSrcId())])
 
                                 LogService.log('::::::::{} RESENDING TO {}::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
 
@@ -200,9 +207,11 @@ def __move(x = None, y = None, event = None):
 
                                 __indicateRoutingReset()
                         else:
-                            __packetLocations.append((__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid()))
+                            __packetLocations.append(
+                                [__nextHop, main.__nodeService.getNodeByID(__nextHop).getCentroid(),
+                                 main.__nodeService.getNodeByID(__nextHop)])
                             msg = "Packet is delivered at node"
-                            LogService.log('::::::::RETURNING PACKET FROM {} TO {} COMPLETED::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
+                            LogService.log('::::::::ROUTING FROM {} TO {} COMPLETED::::::::'.format(__packet.getSrcId(), __packet.getDestId()))
                             __routingResult.append('{} {} :)'.format(msg, __nextHop))
                             __routingResult.append(True)
 
@@ -225,7 +234,9 @@ def __move(x = None, y = None, event = None):
                             __isRepeatedRouting = True
                             __initiateRouting = True
 
-                            __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+                            __packetLocations.append(
+                                [__packet.getSrcId(), __packet.getSrcCentroid(),
+                                 main.__nodeService.getNodeByID(__packet.getSrcId())])
 
                             __nextHop = None
                             __infExtrasData = nakSender.getInfExtras(__packet, False)
@@ -275,7 +286,12 @@ def __initiateBasicRoutingSending(event):
         __isNewSendingInitiatable = True
         return
 
-    __packetLocations.clear()
+    global __packetLocations
+    __packetLocations = []
+    global __infExtrasData
+    __infExtrasData = None
+    global __infExtrasForRendering
+    __infExtrasForRendering = None
 
     global __isSendingInProgress
     __isSendingInProgress = True
@@ -284,7 +300,9 @@ def __initiateBasicRoutingSending(event):
 
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
-    __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+    __packetLocations.append(
+        [__packet.getSrcId(), __packet.getSrcCentroid(),
+         main.__nodeService.getNodeByID(__packet.getSrcId())])
 
     global __routingResult
     __routingResult = []
@@ -313,7 +331,12 @@ def __initiateLocationProxyRoutingSending(event):
         __isNewSendingInitiatable = True
         return
 
-    __packetLocations.clear()
+    global __packetLocations
+    __packetLocations = []
+    global __infExtrasData
+    __infExtrasData = None
+    global __infExtrasForRendering
+    __infExtrasForRendering = None
 
     global __isSendingInProgress
     __isSendingInProgress = True
@@ -323,7 +346,9 @@ def __initiateLocationProxyRoutingSending(event):
 
     global __packet
     __packet = __createPacket(packetSendingDetails, False)
-    __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+    __packetLocations.append(
+        [__packet.getSrcId(), __packet.getSrcCentroid(),
+         main.__nodeService.getNodeByID(__packet.getSrcId())])
 
     global __routingResult
     __routingResult = []
@@ -351,7 +376,12 @@ def __initiateInfRoutingSending(event):
          __isNewSendingInitiatable = True
          return
 
-    __packetLocations.clear()
+    global __packetLocations
+    __packetLocations = []
+    global __infExtrasData
+    __infExtrasData = None
+    global __infExtrasForRendering
+    __infExtrasForRendering = None
 
     global __isSendingInProgress
     __isSendingInProgress = True
@@ -365,7 +395,9 @@ def __initiateInfRoutingSending(event):
 
     global __packet
     __packet = __createPacket(packetSendingDetails, True)
-    __packetLocations.append((__packet.getSrcId(), __packet.getSrcCentroid()))
+    __packetLocations.append(
+        [__packet.getSrcId(), __packet.getSrcCentroid(),
+         main.__nodeService.getNodeByID(__packet.getSrcId())])
 
     global __routingResult
     __routingResult = []

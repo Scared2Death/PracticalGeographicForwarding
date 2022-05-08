@@ -189,7 +189,7 @@ class GuiService:
 
 
             last = len(packetLocations) - 1
-            # PACKET SOURCE LOCATION
+            # PACKET CURRENT LOCATION
             self.__drawCircle(
                 packetLocations[last][1].x,
                 packetLocations[last][1].y,
@@ -197,6 +197,17 @@ class GuiService:
                 outlineColor,
                 width = Configuration.PACKET_OUTLINE_WIDTH
             )
+
+            if packetLocations[last][2].getProxy() is not None:
+                proxy = packetLocations[last][2].getProxy()
+                self.__drawCircle(
+                    proxy.x,
+                    proxy.y,
+                    Configuration.NODE_SHAPE_RADIUS,
+                    c = Configuration.PROXY_COLOR,
+                    width = Configuration.PACKET_OUTLINE_WIDTH
+                )
+
             if len(packetLocations) >= 2:
                 for index, packetLocation in enumerate(packetLocations):
                     if index != len(packetLocations) - 1:
