@@ -212,7 +212,7 @@ class Node:
 
     def __setIntermediateLocation(self):
         if self.getLocation() is not None:
-            radiusRatio = 1/4 if self.__attempt < 5 else 1/2
+            radiusRatio = 1/4 if self.__attempt < Configuration.MAX_ATTEMPTS / 2 else 1/2
             intermediateLocation = utilitiesService.UtilitiesService.getIntermediateLocation(self.getLocation(), self.__packet.getDestLocation(), radiusRatio)
             self.__infTable[self.__packet.getDestId()] = intermediateLocation
             LogService.log('New Intermediate location for destination {}: {}'.format(self.__packet.getDestId(), intermediateLocation))
@@ -244,7 +244,7 @@ class Node:
 
     def handleNakPacket(self):
         LogService.log('Node {} is handling NAK packet, node location: {} (proxy: {})'.format(self.__nodeId, self.getLocation(), self.__proxyId))
-        if self.__attempt < 7:
+        if self.__attempt < Configuration.MAX_ATTEMPTS:
             self.__attempt += 1
             result = self.__setIntermediateLocation()
             if not result:
